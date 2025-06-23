@@ -1,0 +1,44 @@
+
+clustering
+    Prepare data
+        format data
+            figure out which two columns make up force vs resistance graph
+            figure out how to handle temporal shifts (do i have to handle temporal shifts? x-axis is depth)
+                make graph continuous
+                    create new dataset with constant x-axis, use euclidean distance as distance metrix
+                keep temporal shifts
+                    use DTW (Dynamic Time Warping) distance metric
+            use moving average to remove noise
+            normalize those columns
+            goal: for each data file calulcate
+        clean data
+            address nan
+            numerical
+        standardize/normalize data
+
+    dimension reduction of data choice
+        feature extraction
+            statistical measures
+            derivatives
+        latent representations
+            auto-encoder
+
+    model choice
+        k-means clustering
+        heirarchical clustering
+
+    model parameter experimentation
+
+    data recording
+
+Using clustering for prediction
+    we have already calculated clusters from above
+    receive new data point in feild
+    clean the same as above
+    calculate distance from the new data point to each centroid calculated during prior clustering
+    keep track of what the nearest cluster is
+        ex: if previous point is close to cluster1 and the next data point becomes closer to cluster2 we say robot dog is leaving env 1 and entering env 2
+        perhaps track momentum, direction of multiple points in direct sequence may increase certainty of heading to a new env
+        must be a gradinet between environment right?
+    
+
