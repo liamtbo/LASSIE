@@ -72,7 +72,7 @@ def get_penetration_start_idx(df, range_max_res_thresh, max_spacing_between_rang
     # need to make sure this high res noise is not considered for start
     start_idx = ranges_within_res_thresh_list[-1][0] # init start idx with start of largest curve (last range is range_list)
     # case: only one range within res threshold, the main curve
-    if len(ranges_within_res_thresh_list) < 2: return 0
+    if len(ranges_within_res_thresh_list) < 2: return start_idx
     # case: many ranges within res threshold
     for i in range(len(ranges_within_res_thresh_list)-2, -1, -1): 
         range_start_i = df["depth"].iloc[ranges_within_res_thresh_list[i][1]]
