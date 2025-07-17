@@ -65,6 +65,14 @@ class test_find_resistance_pos_ranges(unittest.TestCase):
         df = pd.DataFrame({"resistance": [0,0,0,0,0]})
         self.assertEqual(find_positive_subranges_of_resistance(df), ([], []))
 
+def filter_subranges(subrange_list, subrange_max_resistance_list, subrange_max_resistance):
+    max_resistance_overall = max(subrange_max_resistance_list)
+    filtered_subranges = []
+    for i, pos_range in enumerate(subrange_list):
+        if subrange_max_resistance_list[i] > max_resistance_overall * subrange_max_resistance:
+             filtered_subranges.append(pos_range)
+    return filtered_subranges
+
 def get_ground_start_idx(df, subrange_max_resistance, spacing_between_ranges):
     """
     - args
@@ -74,32 +82,25 @@ def get_ground_start_idx(df, subrange_max_resistance, spacing_between_ranges):
     - returns
         - index where the robotic arm contacts the ground - i.e where the curve should start
     """
-    pos_ranges_list, pos_ranges_max_res_list = find_positive_subranges_of_resistance(df)
-    if len(pos_ranges_list) < 1: return 0
-    # grab the range with the highest resistance (main curve)
-    max_resistance_overall = max(pos_ranges_max_res_list)
+    subrange_list, subrange_max_resistance_list = find_positive_subranges_of_resistance(df)
 
-    # grab all other positive ranges within range_max_resold
-    ranges_within_res_list = []
-    for i, pos_range in enumerate(pos_ranges_list):
-        if pos_ranges_max_res_list[i] > max_resistance_overall * subrange_max_resistance:
-             ranges_within_res_list.append(pos_range)
+    if len(subrange_list) < 1: return 0
     
-    # some files have high resistance noise way before penetration even starts
-    # need to make sure this high resistance noise is not chosen for where the ground starts
-    start_idx = ranges_within_res_list[-1][0] # init start_idx with start of largest curve (last subrange is range_list)
-    # case: only one subrange within range_max_resold, the main curve
-    if len(ranges_within_res_list) < 2: return start_idx
-    # case: many ranges within res threshold
-    for i in range(len(ranges_within_res_list)-2, -1, -1): 
-        range_start_i = df["depth"].iloc[ranges_within_res_list[i][1]]
-        range_end_j = df["depth"].iloc[ranges_within_res_list[i+1][0]]
-        if range_end_j - range_start_i > spacing_between_ranges * len(df["depth"]):
-            start_idx = ranges_within_res_list[i+1][0]
-            break
+    filtered_subranges = filter_subranges(subrange_list, subrange_max_resistance_list, subrange_max_resistance)
+
+    ground_start_idx = filtered_subranges[-1][0] # init ground_start_idx with start of largest curve (last subrange in range_list)
+    if len(filtered_subranges) < 2: return ground_start_idx
+
+    # reverse iterate over the filtered subranges and stop when the distance from subrange i to j is too high
+    for i in range(len(filtered_subranges)-2, -1, -1): 
+        subrange_i_start_idx = df["depth"].iloc[filtered_subranges[i][1]]
+        subrange_j_end_idx = df["depth"].iloc[filtered_subranges[i+1][0]]
+        if subrange_j_end_idx - subrange_i_start_idx > spacing_between_ranges * len(df["depth"]):
+            ground_start_idx = filtered_subranges[i+1][0]
+            break # found our final ground_start_idx
         else:
-            start_idx = ranges_within_res_list[i][0]
-    return start_idx
+            ground_start_idx = filtered_subranges[i][0]
+    return ground_start_idx
 
 spacing = 0.2
 class test_get_penetration_start_idx(unittest.TestCase):
@@ -149,8 +150,8 @@ def start_curve_at_ground(df, subrange_max_resistance, spacing_between_ranges):
     - returns
         - dataframe with all data prior to first contact with ground removed
     """
-    start_idx = get_ground_start_idx(df, subrange_max_resistance, spacing_between_ranges)
-    df = df.iloc[start_idx:]
+    ground_start_idx = get_ground_start_idx(df, subrange_max_resistance, spacing_between_ranges)
+    df = df.iloc[ground_start_idx:]
     return df
 
 class test_start_df_at_penetrations(unittest.TestCase):
