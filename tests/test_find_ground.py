@@ -31,7 +31,7 @@ def find_positive_subranges_of_resistance(df):
                 range_max_resistance = max(range_max_resistance, res)
         elif in_range:
             # end of a positive range
-            ranges_above_zero_list.append((range_start_idx, i - 1))
+            ranges_above_zero_list.append((range_start_idx, i))
             range_max_height_list.append(range_max_resistance)
             in_range = False
 
@@ -45,16 +45,16 @@ def find_positive_subranges_of_resistance(df):
 class test_find_resistance_pos_ranges(unittest.TestCase):
     def test_1(self):
         df = pd.DataFrame({"resistance": [0, 1, 2, 3, 2, 1, 0]})
-        self.assertEqual(find_positive_subranges_of_resistance(df), ([(0,5)], [3]))
+        self.assertEqual(find_positive_subranges_of_resistance(df), ([(0,6)], [3]))
     def test_2(self):
             df = pd.DataFrame({"resistance": [0, 1, 0, 2, 0]})
-            self.assertEqual(find_positive_subranges_of_resistance(df), ([(0,1),(2,3)], [1,2]))
+            self.assertEqual(find_positive_subranges_of_resistance(df), ([(0,2),(2,4)], [1,2]))
     def test_3(self):
             df = pd.DataFrame({"resistance": [0, 0, 1, 0, 0, 2, 0, 0]})
-            self.assertEqual(find_positive_subranges_of_resistance(df), ([(1,2),(4,5)], [1,2]))
+            self.assertEqual(find_positive_subranges_of_resistance(df), ([(1,3),(4,6)], [1,2]))
     def test_4(self):
         df = pd.DataFrame({"resistance": [0, 0, 1, 0, 0, 2, 0, 9, 5]})
-        self.assertEqual(find_positive_subranges_of_resistance(df), ([(1,2),(4,5),(6,8)], [1,2,9]))
+        self.assertEqual(find_positive_subranges_of_resistance(df), ([(1,3),(4,6),(6,8)], [1,2,9]))
     def test_5(self):
         df = pd.DataFrame({"resistance": [5,8]})
         self.assertEqual(find_positive_subranges_of_resistance(df), ([(0,1)], [8]))
