@@ -1,7 +1,17 @@
 import pandas as pd
 import unittest
 
-def find_resistance_pos_ranges(df):
+def find_positive_subranges_of_resistance(df):
+    """
+    - args: 
+        - dp: depth-resistance dataframe
+    - returns:
+        - parallel arrays: df['resistance'] subranges seperated by 0-values & the maximum resistance within each subrange
+    - ex
+        - if df["resistance"] = [0,1,2,1,0,1,2,3,4,5], this function would output ( [(0,3), (4,9)], [2, 5] ) 
+        - first sub range is [0,1,2,1] with a max resistance of 2
+        - second sub range is [0,1,2,3,4,5] with a max resistance of 5
+    """
     ranges_above_zero_list = []
     range_max_height_list = []
 
@@ -35,53 +45,60 @@ def find_resistance_pos_ranges(df):
 class test_find_resistance_pos_ranges(unittest.TestCase):
     def test_1(self):
         df = pd.DataFrame({"resistance": [0, 1, 2, 3, 2, 1, 0]})
-        self.assertEqual(find_resistance_pos_ranges(df), ([(0,5)], [3]))
+        self.assertEqual(find_positive_subranges_of_resistance(df), ([(0,5)], [3]))
     def test_2(self):
             df = pd.DataFrame({"resistance": [0, 1, 0, 2, 0]})
-            self.assertEqual(find_resistance_pos_ranges(df), ([(0,1),(2,3)], [1,2]))
+            self.assertEqual(find_positive_subranges_of_resistance(df), ([(0,1),(2,3)], [1,2]))
     def test_3(self):
             df = pd.DataFrame({"resistance": [0, 0, 1, 0, 0, 2, 0, 0]})
-            self.assertEqual(find_resistance_pos_ranges(df), ([(1,2),(4,5)], [1,2]))
+            self.assertEqual(find_positive_subranges_of_resistance(df), ([(1,2),(4,5)], [1,2]))
     def test_4(self):
         df = pd.DataFrame({"resistance": [0, 0, 1, 0, 0, 2, 0, 9, 5]})
-        self.assertEqual(find_resistance_pos_ranges(df), ([(1,2),(4,5),(6,8)], [1,2,9]))
+        self.assertEqual(find_positive_subranges_of_resistance(df), ([(1,2),(4,5),(6,8)], [1,2,9]))
     def test_5(self):
         df = pd.DataFrame({"resistance": [5,8]})
-        self.assertEqual(find_resistance_pos_ranges(df), ([(0,1)], [8]))
+        self.assertEqual(find_positive_subranges_of_resistance(df), ([(0,1)], [8]))
     def test_6(self):
         df = pd.DataFrame({"resistance": [1]})
-        self.assertEqual(find_resistance_pos_ranges(df), ([(0,0)], [1]))
+        self.assertEqual(find_positive_subranges_of_resistance(df), ([(0,0)], [1]))
     def test_7(self):
         df = pd.DataFrame({"resistance": [0,0,0,0,0]})
-        self.assertEqual(find_resistance_pos_ranges(df), ([], []))
+        self.assertEqual(find_positive_subranges_of_resistance(df), ([], []))
 
-def get_penetration_start_idx(df, range_max_res_thresh, max_spacing_between_ranges_thresh):
-    pos_ranges_list, pos_ranges_max_res_list = find_resistance_pos_ranges(df)
+def get_ground_start_idx(df, subrange_max_resistance, spacing_between_ranges):
+    """
+    - args
+        - dp: depth-resistance dataframe
+        - subrange_max_resistance (user defined threshold used for selecting resistance subranges above this value)
+        - spacing_between_ranges (user defined threshold for droping subranges with a max resistance)
+    - returns
+        - index where the robotic arm contacts the ground - i.e where the curve should start
+    """
+    pos_ranges_list, pos_ranges_max_res_list = find_positive_subranges_of_resistance(df)
     if len(pos_ranges_list) < 1: return 0
-
     # grab the range with the highest resistance (main curve)
     max_resistance_overall = max(pos_ranges_max_res_list)
 
-    # grab all other ranges that have a max resistance within range_max_res_thresh of first_max_res_value
-    ranges_within_res_thresh_list = []
+    # grab all other positive ranges within range_max_resold
+    ranges_within_res_list = []
     for i, pos_range in enumerate(pos_ranges_list):
-        if pos_ranges_max_res_list[i] > max_resistance_overall * range_max_res_thresh:
-             ranges_within_res_thresh_list.append(pos_range)
+        if pos_ranges_max_res_list[i] > max_resistance_overall * subrange_max_resistance:
+             ranges_within_res_list.append(pos_range)
     
     # some files have high resistance noise way before penetration even starts
-    # need to make sure this high res noise is not considered for start
-    start_idx = ranges_within_res_thresh_list[-1][0] # init start idx with start of largest curve (last range is range_list)
-    # case: only one range within res threshold, the main curve
-    if len(ranges_within_res_thresh_list) < 2: return start_idx
+    # need to make sure this high resistance noise is not chosen for where the ground starts
+    start_idx = ranges_within_res_list[-1][0] # init start_idx with start of largest curve (last subrange is range_list)
+    # case: only one subrange within range_max_resold, the main curve
+    if len(ranges_within_res_list) < 2: return start_idx
     # case: many ranges within res threshold
-    for i in range(len(ranges_within_res_thresh_list)-2, -1, -1): 
-        range_start_i = df["depth"].iloc[ranges_within_res_thresh_list[i][1]]
-        range_end_j = df["depth"].iloc[ranges_within_res_thresh_list[i+1][0]]
-        if range_end_j - range_start_i > max_spacing_between_ranges_thresh * len(df["depth"]):
-            start_idx = ranges_within_res_thresh_list[i+1][0]
+    for i in range(len(ranges_within_res_list)-2, -1, -1): 
+        range_start_i = df["depth"].iloc[ranges_within_res_list[i][1]]
+        range_end_j = df["depth"].iloc[ranges_within_res_list[i+1][0]]
+        if range_end_j - range_start_i > spacing_between_ranges * len(df["depth"]):
+            start_idx = ranges_within_res_list[i+1][0]
             break
         else:
-            start_idx = ranges_within_res_thresh_list[i][0]
+            start_idx = ranges_within_res_list[i][0]
     return start_idx
 
 spacing = 0.2
@@ -89,67 +106,75 @@ class test_get_penetration_start_idx(unittest.TestCase):
     # test range_max_res_threshold by setting max_spacing to very high number st it doesn't matter
     def test_1(self):
         df = pd.DataFrame({"resistance": [0, 1, 2, 3, 2, 1, 0], "depth": [0,1,2,3,4,5,6]})
-        self.assertEqual(get_penetration_start_idx(df, range_max_res_thresh=0.1, max_spacing_between_ranges_thresh=100), 0)
+        self.assertEqual(get_ground_start_idx(df, subrange_max_resistance=0.1, spacing_between_ranges=100), 0)
     def test_2(self):
             df = pd.DataFrame({"resistance": [0, 1, 0, 2, 0], 'depth': [0,1,2,3,4]})
-            self.assertEqual(get_penetration_start_idx(df, range_max_res_thresh=0.1, max_spacing_between_ranges_thresh=100), 0)
+            self.assertEqual(get_ground_start_idx(df, subrange_max_resistance=0.1, spacing_between_ranges=100), 0)
     def test_3(self):
             df = pd.DataFrame({"resistance": [0, 0, 1, 0, 0, 2, 0, 0], 'depth': [0,1,2,3,4,5,6,7]})
-            self.assertEqual(get_penetration_start_idx(df, range_max_res_thresh=0.1, max_spacing_between_ranges_thresh=100), 1)
+            self.assertEqual(get_ground_start_idx(df, subrange_max_resistance=0.1, spacing_between_ranges=100), 1)
     def test_4(self):
         df = pd.DataFrame({"resistance": [0, 0, 1, 0, 0, 2, 0, 9, 5], 'depth': [0,1,2,3,4,5,6,7,8]})
-        self.assertEqual(get_penetration_start_idx(df, range_max_res_thresh=0.1, max_spacing_between_ranges_thresh=100), 1)
+        self.assertEqual(get_ground_start_idx(df, subrange_max_resistance=0.1, spacing_between_ranges=100), 1)
     def test_5(self):
         df = pd.DataFrame({"resistance": [5,8], 'depth': [0,1]})
-        self.assertEqual(get_penetration_start_idx(df, range_max_res_thresh=0.1, max_spacing_between_ranges_thresh=100), 0)
+        self.assertEqual(get_ground_start_idx(df, subrange_max_resistance=0.1, spacing_between_ranges=100), 0)
     def test_6(self):
         df = pd.DataFrame({"resistance": [1], 'depth': [0]})
-        self.assertEqual(get_penetration_start_idx(df, range_max_res_thresh=0.1, max_spacing_between_ranges_thresh=100), 0)
+        self.assertEqual(get_ground_start_idx(df, subrange_max_resistance=0.1, spacing_between_ranges=100), 0)
     def test_7(self):
         df = pd.DataFrame({"resistance": [0,0,0,0,0], 'depth':[0,1,2,3,4]})
-        self.assertEqual(get_penetration_start_idx(df, range_max_res_thresh=0.1, max_spacing_between_ranges_thresh=100), 0)
+        self.assertEqual(get_ground_start_idx(df, subrange_max_resistance=0.1, spacing_between_ranges=100), 0)
     
     # testing spacing threshold
     def test_8(self):
         df = pd.DataFrame({"resistance": [0,8,0,0,0,0,0,0,0,3,10], 'depth':[0,1,2,3,4,5,6,7,8,9,10]})
-        self.assertEqual(get_penetration_start_idx(df, range_max_res_thresh=0.1, max_spacing_between_ranges_thresh=0.2), 8)
+        self.assertEqual(get_ground_start_idx(df, subrange_max_resistance=0.1, spacing_between_ranges=0.2), 8)
     def test_9(self):
         df = pd.DataFrame({"resistance": [0,4,0,5,0,0,0,0,0,0,0,0,4,0,5,6,8], 'depth':[0,1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16]})
-        self.assertEqual(get_penetration_start_idx(df, range_max_res_thresh=0.1, max_spacing_between_ranges_thresh=0.2), 11)
+        self.assertEqual(get_ground_start_idx(df, subrange_max_resistance=0.1, spacing_between_ranges=0.2), 11)
     def test_10(self):
         df = pd.DataFrame({"resistance": [1,2], 'depth':[0,1]})
-        self.assertEqual(get_penetration_start_idx(df, range_max_res_thresh=0.1, max_spacing_between_ranges_thresh=1), 0)
+        self.assertEqual(get_ground_start_idx(df, subrange_max_resistance=0.1, spacing_between_ranges=1), 0)
     def test_11(self):
         df = pd.DataFrame({"resistance": [0,1,0,2], 'depth':[0,1,2,3]})
-        self.assertEqual(get_penetration_start_idx(df, range_max_res_thresh=0.1, max_spacing_between_ranges_thresh=0.1), 2)
+        self.assertEqual(get_ground_start_idx(df, subrange_max_resistance=0.1, spacing_between_ranges=0.1), 2)
 
-def start_df_at_penetrations(df, range_max_res_thresh=0.1, max_spacing_between_ranges_thresh=0.2):
-    start_idx = get_penetration_start_idx(df, range_max_res_thresh, max_spacing_between_ranges_thresh)
+def start_curve_at_ground(df, subrange_max_resistance, spacing_between_ranges):
+    """    
+    - args
+        - dp: depth-resistance dataframe
+        - subrange_max_resistance (user defined threshold used for selecting resistance subranges above this value)
+        - spacing_between_ranges (user defined threshold for droping subranges with a max resistance)
+    - returns
+        - dataframe with all data prior to first contact with ground removed
+    """
+    start_idx = get_ground_start_idx(df, subrange_max_resistance, spacing_between_ranges)
     df = df.iloc[start_idx:]
     return df
 
 class test_start_df_at_penetrations(unittest.TestCase):
     def test_1(self):
         df = pd.DataFrame({"resistance": [0, 1, 2, 3, 2, 1, 0], "depth": [0,1,2,3,4,5,6]})
-        self.assertEqual(start_df_at_penetrations(df, range_max_res_thresh=0.1, max_spacing_between_ranges_thresh=0.2)["resistance"].to_list(), [0, 1, 2, 3, 2, 1, 0])
+        self.assertEqual(start_curve_at_ground(df, subrange_max_resistance=0.1, spacing_between_ranges=0.2)["resistance"].to_list(), [0, 1, 2, 3, 2, 1, 0])
     def test_2(self):
             df = pd.DataFrame({"resistance": [0, 1, 0, 2, 0], 'depth': [0,1,2,3,4]})
-            self.assertEqual(start_df_at_penetrations(df, range_max_res_thresh=0.1, max_spacing_between_ranges_thresh=0.1)["resistance"].to_list(), [0, 2, 0])
+            self.assertEqual(start_curve_at_ground(df, subrange_max_resistance=0.1, spacing_between_ranges=0.1)["resistance"].to_list(), [0, 2, 0])
     def test_3(self):
         df = pd.DataFrame({"resistance": [0, 0, 1, 0, 0, 2, 0, 0], 'depth': [0,1,2,3,4,5,6,7]})
-        self.assertEqual(start_df_at_penetrations(df, range_max_res_thresh=0.1, max_spacing_between_ranges_thresh=0.2)["resistance"].to_list(), [0, 2, 0, 0])
+        self.assertEqual(start_curve_at_ground(df, subrange_max_resistance=0.1, spacing_between_ranges=0.2)["resistance"].to_list(), [0, 2, 0, 0])
     def test_4(self):
         df = pd.DataFrame({"resistance": [0, 0, 1, 0, 0, 2, 0, 9, 5], 'depth': [0,1,2,3,4,5,6,7,8]})
-        self.assertEqual(start_df_at_penetrations(df, range_max_res_thresh=0.1, max_spacing_between_ranges_thresh=0.1)["resistance"].to_list(), [0, 9, 5])
+        self.assertEqual(start_curve_at_ground(df, subrange_max_resistance=0.1, spacing_between_ranges=0.1)["resistance"].to_list(), [0, 9, 5])
     def test_5(self):
         df = pd.DataFrame({"resistance": [5,8], 'depth': [0,1]})
-        self.assertEqual(start_df_at_penetrations(df, range_max_res_thresh=0.1, max_spacing_between_ranges_thresh=0.2)["resistance"].to_list(), [5,8])
+        self.assertEqual(start_curve_at_ground(df, subrange_max_resistance=0.1, spacing_between_ranges=0.2)["resistance"].to_list(), [5,8])
     def test_6(self):
         df = pd.DataFrame({"resistance": [1], 'depth': [0]})
-        self.assertEqual(start_df_at_penetrations(df, range_max_res_thresh=0.1, max_spacing_between_ranges_thresh=0.2)["resistance"].to_list(), [1])
+        self.assertEqual(start_curve_at_ground(df, subrange_max_resistance=0.1, spacing_between_ranges=0.2)["resistance"].to_list(), [1])
     def test_7(self):
         df = pd.DataFrame({"resistance": [0,0,0,0,0], 'depth':[0,1,2,3,4]})
-        self.assertEqual(start_df_at_penetrations(df, range_max_res_thresh=0.1, max_spacing_between_ranges_thresh=0.2)["resistance"].to_list(), [0,0,0,0,0])
+        self.assertEqual(start_curve_at_ground(df, subrange_max_resistance=0.1, spacing_between_ranges=0.2)["resistance"].to_list(), [0,0,0,0,0])
 
 if __name__ == '__main__':
     unittest.main()
