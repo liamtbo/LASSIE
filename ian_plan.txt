@@ -1,0 +1,38 @@
+file_labels = ['biotic crust', 'biotic crust', 'biotic crust', 'biotic crust with surface nodules',
+ 'biotic crust with surface nodules', 'strata', 'strata', 'crusty ripple', 'strata', 'strata',
+ 'abiotic crust on top of strata', 'abiotic crust', 'strong biotic crust', 'abiotic crust',
+ 'abiotic crust', 'abiotic crust', 'abiotic crust', 'abiotic crust', 'strata', 'crust ripple',
+ 'crusty ripple', 'crusty ripple', 'crusty ripple', 'crust ripple',
+ 'crusty ripple', 'crusty ripple', 'crusty ripple', 'abiotic crust with surface nodule', 'crusty ripple',
+ 'crusty ripple', 'strata', 'strata with loose sand on top']
+
+labled_files = ['WS23_L2_T1_P_3', 'WS23_L2_T1_P_4', 'WS23_L2_T1_P_6', 'WS23_L2_T1_P_7', 'WS23_L2_T1_P_8',
+ 'WS23_L2_T1_P_11', 'WS23_L2_T1_P_12', 'WS23_L2_T1_P_13', 'WS23_L2_T1_P_14', 'WS23_L2_T1_P_15',
+ 'WS23_L2_T1_P_16', 'WS23_L3_T1_P_1', 'WS23_L3_T1_P_3', 'WS23_L3_T1_P_4', 'WS23_L3_T1_P_5',
+ 'WS23_L3_T1_P_6', 'WS23_L3_T1_P_7', 'WS23_L3_T1_P_8', 'WS23_L3_T1_P_9', 'WS23_L3_T1_P_10',
+ 'WS23_L3_T1_P_11', 'WS23_L3_T1_P_12', 'WS23_L3_T1_P_13', 'WS23_L3_T1_P_15', 'WS23_L3_T1_P_16',
+ 'WS23_L3_T1_P_17', 'WS23_L3_T1_P_18', 'WS23_L3_T1_P_19', 'WS23_L3_T1_P_20', 'WS23_L3_T1_P_21', 
+ 'WS23_L3_T1_P_22', 'WS23_L3_T1_P_23']
+
+
+preprocessing
+    Load in all files into df list
+    simultaneously, create parallel array of file names
+    create a y-label simulatanrously while loading in files using dictioanry value
+    process normally
+    make way to save list maybe a one col df to save easily
+featue extraction
+    zip up file_labels and labled files into a dict
+    load in df_list as well as parallel array of files labels
+    extract features of df_list which makes a single representation_df
+    add Labled files and file_labels columns to representation_df
+clustering
+    goal 1: just cluster the labled data
+        create new clustering code blocks
+        mask out non-labled rows in representation list
+        feed these results to clustering algorithms and plot
+    goal 2: cluster the data normally, then apply the known labels to it
+        cluster all data normally,
+        plot clusters like usual (cluster covers = graidents of blue)
+        mask out so we just have Labled representations
+        plot these masked out representations (cluster colors based on label and make it purple gradient)
