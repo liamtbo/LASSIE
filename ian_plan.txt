@@ -36,3 +36,15 @@ clustering
         plot clusters like usual (cluster covers = graidents of blue)
         mask out so we just have Labled representations
         plot these masked out representations (cluster colors based on label and make it purple gradient)
+
+
+preprocessing
+    process files like normal, save them with their default names
+feature extraction
+    load data in, keep a parallel array of file names
+    extract features like normal
+    combine the into one df and save it
+clustering
+    goal 1: just cluster the labled data
+        use the list of labled data file names to mask out the represnetation df using col with their names
+    
