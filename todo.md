@@ -1,6 +1,7 @@
 - **ian**
-- [ ] plot just the labeled data *
-- [ ] see how the labeled data lines up to best clustering methods *
+    - add stuff to document for tomorrow
+        - bad classiciations
+        - work on decision trees
 
 - **sean**
   - [ ] make a new preprocessing file to handle his code
