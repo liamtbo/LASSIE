@@ -42,6 +42,9 @@ class test_find_force_drop_subranges(unittest.TestCase):
     def test_6(self):
         df = pd.DataFrame({'resistance': [0,1,2,1,0,5,4,10]})
         self.assertEqual(find_force_drop_subranges(df, 0.1), [(2,4),(5,6)])
+    def test_7(self):
+        df = pd.DataFrame({'resistance': [0,1,2,1,2,3,4,5,6,5,6,7,8,9,10]})
+        self.assertEqual(find_force_drop_subranges(df, 0.1), [(2,3),(8,9)])
 
 def find_largest_force_drop(df: pd.DataFrame, subrange_list: List[Tuple]):
     curr_max = 0
