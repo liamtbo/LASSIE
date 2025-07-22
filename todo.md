@@ -1,14 +1,12 @@
-- **ian**
-    - add stuff to document for tomorrow !!!!!
-        - bad classiciations
-    - work on decision trees
-
-- **sean**
-  - [ ] make a new preprocessing file to handle his code
-  - [ ] make a new preprocessing for shear data
 
 - **cristina**
-  - [ ] look into getting force drop
-  - [ ] use manual clusters to think of new features to use
-  - [ ] make slides for friday meeting *
-  - [ ] update variable names
+    - [ ] add curvature feature extraction
+    - [ ] make friday slides
+    - [ ] 2d visualization of clusters / ian too
+
+- **diego**
+    - [ ] clean up codebooks
+    - [ ] send codebook
+
+- **marion**
+    - [ ] look at slack she sent
