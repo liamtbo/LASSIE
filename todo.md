@@ -1,7 +1,7 @@
 - **ian**
-    - add stuff to document for tomorrow
+    - add stuff to document for tomorrow !!!!!
         - bad classiciations
-        - work on decision trees
+    - work on decision trees
 
 - **sean**
   - [ ] make a new preprocessing file to handle his code
@@ -11,3 +11,4 @@
   - [ ] look into getting force drop
   - [ ] use manual clusters to think of new features to use
   - [ ] make slides for friday meeting *
+  - [ ] update variable names
