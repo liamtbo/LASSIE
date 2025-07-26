@@ -1,3 +1,6 @@
-for i in range(4):
-    for j in range(5):
-        print(i*4+j)
+from collections import Counter
+x = 5
+def p():
+    print(x)
+x=6
+p()
