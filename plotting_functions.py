@@ -4,6 +4,7 @@ import math
 from sklearn.decomposition import PCA
 import pandas as pd
 from collections import Counter
+import re
 
 # unique coloring mappings for categories
 label_color_map = {0: 'red', 1: 'gold', 2: 'blue', 3: 'green', 4: 'purple', 5: 'pink',
@@ -56,7 +57,7 @@ def plot_pca(clustering_features_df_list: pd.DataFrame, y_labels: List[int], gra
         plt.legend()
 
     # plot
-    plt.savefig(f"figures/{graph_title.lower()}/PCA", bbox_inches='tight')
+    # plt.savefig(f"figures/{graph_title.lower()}/PCA", bbox_inches='tight')
     plt.show()
     plt.close() # clear figure 
 
@@ -74,7 +75,7 @@ def plot_clusters_together(y_labels: List[int], after_mask_indicies: List[int], 
     plt.title('Depth vs Resistance Curves')
     plt.xlim([0, combined_columns["depth"].max()])
     plt.ylim([0, combined_columns["resistance"].max()])
-    plt.savefig(f"figures/{clustering_method.lower()}/cluster_curves", bbox_inches='tight')
+    # plt.savefig(f"figures/{clustering_method.lower()}/cluster_curves", bbox_inches='tight')
     plt.show()
     plt.close() # clear figure 
 
@@ -115,3 +116,72 @@ def plot_clusters_seperately(y_labels: List[int], after_mask_indicies: List[int]
     plt.tight_layout()
     plt.show()
     plt.close()
+
+# size of figures produced
+size_fig = (4,3)
+def pca_analysis(clustering_features_df_list):
+    pca = PCA(n_components=len(clustering_features_df_list.columns))
+    pca.fit(clustering_features_df_list.values)
+
+    # plot scree plot
+    plt.figure(figsize=size_fig)
+    plt.title("Scree Plot")
+    plt.xlabel("PC Number")
+    plt.ylabel("Eigenvalue")
+    plt.xticks(range(1, pca.n_components_+1))
+    plt.plot(range(1, pca.n_components_+1), pca.explained_variance_)
+    plt.show()
+
+    # principal component table
+    principle_components_table = pd.DataFrame({
+        "PC": range(1,pca.n_components_+1),
+        "Eigenvalue": pca.explained_variance_,
+        "Proportion": pca.explained_variance_ratio_
+    })
+    principle_components_table.set_index('PC', inplace=True)
+    principle_components_table["Cumulative"] = principle_components_table["Proportion"].cumsum()
+    print(principle_components_table)
+
+    loadings = pca.components_.T
+    pc_labels = [f'PC{i+1}' for i in range(loadings.shape[1])]
+    loadings_df = pd.DataFrame(loadings, index=clustering_features_df_list.columns, columns=pc_labels)
+    print('\n')
+    print(loadings_df)
+
+def group_data_by_transect(unique_transects, data_features_df):
+    spatial_features_df = data_features_df[data_features_df['distances'].notna()]
+    transect_dict = {}
+    for transect in unique_transects:
+        transect_dict[transect] = spatial_features_df[spatial_features_df['filenames'].str.contains(transect)]
+    for transect in unique_transects:
+        transect_dict[transect] = transect_dict[transect].sort_values(by=['distances'])
+    
+    return transect_dict
+
+def find_plot_dimensions(n):
+    for i in range(int(math.sqrt(n)), 0, -1):
+        if n % i == 0:
+            # prime
+            if i == 1 or n % i == 1: return find_plot_dimensions(n+1)
+            else: return i, n // i
+
+def plot_transect_subplots(depth_resist_curve_df_list, transect_dict, filename_to_depth_resist):
+    for transect, samples in transect_dict.items():
+        masked_indicies = samples.index.tolist()
+        # for transect in unique_transects:
+        combined_columns = pd.concat(depth_resist_curve_df_list, axis=0, ignore_index=True)
+        x, y = find_plot_dimensions(len(samples))
+        fig, axs = plt.subplots(x,y,figsize=(10,6))
+        fig.suptitle(f"Transect: {transect.title()}")
+        for i, ax in enumerate(axs.flatten()):
+            ax.set_xlim([0, combined_columns["depth"].max()])
+            ax.set_ylim([0, combined_columns["resistance"].max()])
+            curve_features = samples.loc[masked_indicies[i]]
+            sample_point = re.search(r'P_\d+', curve_features['filenames'])
+            ax.set_title(f'{sample_point.group()}: {curve_features['distances']} ft.')
+            # ax.set_title(curve_features['filenames'], fontsize=10)
+            filename = curve_features['filenames']
+            curve = filename_to_depth_resist[filename]
+            ax.plot(curve['depth'], curve['resistance'], color=label_color_map[curve_features['liams_ylabels']])
+        plt.tight_layout()
+        plt.show()
