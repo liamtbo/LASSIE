@@ -35,32 +35,58 @@ def plot_specific_curves(plot_indicies: List[int], depth_resist_curve_df_list, d
         print(data_features_df['filenames'].iloc[idx])
         plt.plot(depth_resist_curve_df_list[idx]["depth"], depth_resist_curve_df_list[idx]["resistance"], c='black')
 
+from mpl_toolkits import mplot3d
+import plotly.graph_objects as go
+import numpy as np
+
 # plot PCA 
-def plot_pca(clustering_features_df_list: pd.DataFrame, y_labels: List[int], graph_title: str, kmeans_centroids=[]):
+def plot_pca(clustering_features_df_list: pd.DataFrame, y_labels: List[int], num_pc, graph_title: str, kmeans_centroids=[]):
     # calculate PCA
-    pca = PCA(n_components=2) # reduce data down to 2 dims
+    pca = PCA(n_components=num_pc) # reduce data down to 2 dims
     pca.fit(clustering_features_df_list.values)
     X_pca = pca.transform(clustering_features_df_list.values)
     # plot
     plt.figure(figsize=size_fig)
     plt.title(f"{graph_title} Clustering Visualized with pca")
     colors = [label_color_map[label] for label in y_labels]
-    plt.scatter(X_pca[:,0], X_pca[:,1], c=colors, alpha=0)
-    for i in range(X_pca.shape[0]): # loops over every point
-        plt.text(X_pca[i,0], X_pca[i,1], str(i), c=label_color_map[y_labels[i]], fontsize=8)
 
-    # special cases per algorithm used
-    if graph_title.lower() == "kmeans" and len(kmeans_centroids):
-        centroids_pca = pca.transform(kmeans_centroids)
-        plt.scatter(centroids_pca[:,0], centroids_pca[:,1], c="Red", marker="^", s=180)
-    if graph_title.lower() == "dbscan":
-        plt.scatter([], [], c=label_color_map[max(y_labels)], label='Outliers')
-        plt.legend()
+    if num_pc == 2:
+        plt.scatter(X_pca[:,0], X_pca[:,1], c=colors, alpha=0)
+        for i in range(X_pca.shape[0]): # loops over every point
+            plt.text(X_pca[i,0], X_pca[i,1], str(i), c=label_color_map[y_labels[i]], fontsize=8)
+        # special cases per algorithm used
+        if graph_title.lower() == "kmeans" and len(kmeans_centroids):
+            centroids_pca = pca.transform(kmeans_centroids)
+            plt.scatter(centroids_pca[:,0], centroids_pca[:,1], c="Red", marker="^", s=180)
+        if graph_title.lower() == "dbscan":
+            plt.scatter([], [], c=label_color_map[max(y_labels)], label='Outliers')
+            plt.legend()
+        plt.show()
+        plt.close() # clear figure 
 
+    elif num_pc == 3:
+        # ax = plt.axes(projection='3d')
+        # ax.scatter(X_pca[:,0], X_pca[:,1], X_pca[:,2])
+        fig = go.Figure(data=[go.Scatter3d(
+            x=X_pca[:,0], 
+            y=X_pca[:,1], 
+            z=X_pca[:,2], 
+            mode='markers',
+            marker=dict(size=4, color=colors,)
+        )])
+        fig.update_layout(title='3D Surface Plot', autosize=True)
+        fig.update_layout(
+            title='3D PCA Scatter Plot',
+            scene=dict(
+                xaxis_title='PC1',
+                yaxis_title='PC2',
+                zaxis_title='PC3'
+            )
+        )
+        fig.show()
     # plot
     # plt.savefig(f"figures/{graph_title.lower()}/PCA", bbox_inches='tight')
-    plt.show()
-    plt.close() # clear figure 
+    
 
 # creates one plot where all curves, colored by their respective cluster, are plotted
 def plot_clusters_together(y_labels: List[int], after_mask_indicies: List[int], depth_resist_curve_df_list, clustering_method: str = ""):
