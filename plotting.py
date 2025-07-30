@@ -13,7 +13,7 @@ label_color_map = {0: 'red', 1: 'gold', 2: 'blue', 3: 'green', 4: 'purple', 5: '
         16: 'coral', 17: 'grey', 18: 'salmon', 19: 'yellow'}
 
 # size of figures produced
-size_fig = (4,3)
+size_fig = (8,6)
 
 # given a cluster color, this returns the filenames associated
 def get_curve_idx_from_cluster_color(color, y_labels, after_mask_indicies: List[int], data_features_df):
@@ -23,7 +23,7 @@ def get_curve_idx_from_cluster_color(color, y_labels, after_mask_indicies: List[
             print(f'idx: {i}, filename: {data_features_df['filenames'].iloc[after_mask_indicies[i]]}')
 
 # for plotting specific curve indicies
-def plot_specific_curves(plot_indicies: List[int], depth_resist_curve_df_list):
+def plot_specific_curves(plot_indicies: List[int], depth_resist_curve_df_list, data_features_df):
     combined_columns = pd.concat(depth_resist_curve_df_list)
     for idx in plot_indicies:
         plt.figure(figsize=size_fig)
@@ -32,6 +32,7 @@ def plot_specific_curves(plot_indicies: List[int], depth_resist_curve_df_list):
         plt.title('Depth vs Resistance Curve')
         plt.xlim([0, combined_columns["depth"].max()])
         plt.ylim([0, combined_columns["resistance"].max()])
+        print(data_features_df['filenames'].iloc[idx])
         plt.plot(depth_resist_curve_df_list[idx]["depth"], depth_resist_curve_df_list[idx]["resistance"], c='black')
 
 # plot PCA 
@@ -49,7 +50,7 @@ def plot_pca(clustering_features_df_list: pd.DataFrame, y_labels: List[int], gra
         plt.text(X_pca[i,0], X_pca[i,1], str(i), c=label_color_map[y_labels[i]], fontsize=8)
 
     # special cases per algorithm used
-    if graph_title.lower() == "kmeans" and kmeans_centroids.any():
+    if graph_title.lower() == "kmeans" and len(kmeans_centroids):
         centroids_pca = pca.transform(kmeans_centroids)
         plt.scatter(centroids_pca[:,0], centroids_pca[:,1], c="Red", marker="^", s=180)
     if graph_title.lower() == "dbscan":
@@ -86,7 +87,7 @@ def find_plot_dimensions(n):
             if i == 1 or n % i == 1: return find_plot_dimensions(n+1)
             else: return i, n // i
 
-def plot_clusters_seperately(y_labels: List[int], after_mask_indicies: List[int], depth_resist_curve_df_list, clustering_method: str = "", cluster_category_names=[], filenames=False):
+def plot_clusters_seperately(y_labels: List[int], after_mask_indicies: List[int], depth_resist_curve_df_list, data_features_df, clustering_method: str = "", cluster_category_names=[], filenames=False):
     all_depth_resistance_data = pd.concat(depth_resist_curve_df_list, axis=0, ignore_index=True)
     gloabl_max_depth = all_depth_resistance_data['depth'].max()
     gloabl_max_resistance = all_depth_resistance_data['resistance'].max()
@@ -104,8 +105,12 @@ def plot_clusters_seperately(y_labels: List[int], after_mask_indicies: List[int]
         ax.set_ylabel('Resistance (N)', fontsize=8)
 
         cluster_color = label_color_map.get(i, 'black')
-        if cluster_category_names: ax.set_title(f'{cluster_category_names[i].title()} Cluster', fontsize=8)
-        else: ax.set_title(f'{cluster_color.title()} Cluster', fontsize=8)
+        if cluster_category_names: 
+            ax.set_title(f'{cluster_category_names[i].title()} Cluster', fontsize=8)
+            # print(f'{cluster_category_names[i]} Cluster')
+        else: 
+            ax.set_title(f'{cluster_color.title()} Cluster', fontsize=8)
+            # print(f'{cluster_color} Cluster')
 
         # for each curve in cluster_i
         for j in range(len(y_labels)):
@@ -113,12 +118,13 @@ def plot_clusters_seperately(y_labels: List[int], after_mask_indicies: List[int]
                 continue
             dep_res_curve = depth_resist_curve_df_list[after_mask_indicies[j]]
             ax.plot(dep_res_curve['depth'], dep_res_curve['resistance'], color=cluster_color, alpha=opacity)
+            # print(f'\t{data_features_df.iloc[after_mask_indicies[j]]['filenames']}')
     plt.tight_layout()
     plt.show()
     plt.close()
 
 # size of figures produced
-size_fig = (4,3)
+# size_fig = (4,3)
 def pca_analysis(clustering_features_df_list):
     pca = PCA(n_components=len(clustering_features_df_list.columns))
     pca.fit(clustering_features_df_list.values)
