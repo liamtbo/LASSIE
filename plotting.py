@@ -35,24 +35,31 @@ def plot_specific_curves(plot_indicies: List[int], depth_resist_curve_df_list, d
         print(data_features_df['filenames'].iloc[idx])
         plt.plot(depth_resist_curve_df_list[idx]["depth"], depth_resist_curve_df_list[idx]["resistance"], c='black')
 
-from mpl_toolkits import mplot3d
 import plotly.graph_objects as go
 import numpy as np
 
+def plot_pca_biplot(pca, clustering_features_df):
+    feature_loadings = []
+    for i in range(len(clustering_features_df.columns)):
+        feature_loadings.append(pca.components_[:,i])
+    return feature_loadings
+
 # plot PCA 
-def plot_pca(clustering_features_df_list: pd.DataFrame, y_labels: List[int], num_pc, graph_title: str, kmeans_centroids=[]):
+def plot_pca(clustering_features_df: pd.DataFrame, y_labels: List[int], num_pc, graph_title: str, kmeans_centroids=[]):
     # calculate PCA
     pca = PCA(n_components=num_pc) # reduce data down to 2 dims
-    pca.fit(clustering_features_df_list.values)
-    X_pca = pca.transform(clustering_features_df_list.values)
+    pca.fit(clustering_features_df.values)
+    X_pca = pca.transform(clustering_features_df.values)
     colors = [label_color_map[label] for label in y_labels]
+
+    features_loadings = plot_pca_biplot(pca, clustering_features_df)
 
     if num_pc == 2:
         # plot
         plt.figure(figsize=size_fig)
         plt.title(f"{graph_title} Clustering Visualized with pca")
-        plt.xlabel(f'PC1 (var: {pca.explained_variance_ratio_[0]:0.2f})')
-        plt.ylabel(f'PC2 (var: {pca.explained_variance_ratio_[1]:0.2f})')
+        plt.xlabel(f'PC1 ({pca.explained_variance_ratio_[0]:0.2f} explained var.)')
+        plt.ylabel(f'PC2 ({pca.explained_variance_ratio_[1]:0.2f} explained var.)')
         plt.scatter(X_pca[:,0], X_pca[:,1], c=colors, alpha=0)
         for i in range(X_pca.shape[0]): # loops over every point
             plt.text(X_pca[i,0], X_pca[i,1], str(i), c=label_color_map[y_labels[i]], fontsize=8)
@@ -67,22 +74,41 @@ def plot_pca(clustering_features_df_list: pd.DataFrame, y_labels: List[int], num
         plt.close() # clear figure 
 
     elif num_pc == 3:
-        # ax = plt.axes(projection='3d')
-        # ax.scatter(X_pca[:,0], X_pca[:,1], X_pca[:,2])
         fig = go.Figure(data=[go.Scatter3d(
             x=X_pca[:,0], 
             y=X_pca[:,1], 
             z=X_pca[:,2], 
             mode='markers',
-            marker=dict(size=4, color=colors,)
+            marker=dict(size=3, color=colors,)
         )])
+        # Add origin point (0,0)
+        fig.add_trace(go.Scatter(
+            x=[0], y=[0],
+            mode='markers',
+            marker=dict(color='black', size=5),
+            showlegend=False
+        ))
+        for i, (x, y, z) in enumerate(features_loadings):
+            fig.add_trace(go.Scatter3d(
+                x=[0, x*3],
+                y=[0, y*3],
+                z=[0, z*3],
+                mode='lines+text',
+                line=dict(width=5),
+                # text=[None, clustering_features_df.columns[i]],
+                textposition='top center',
+                name=clustering_features_df.columns[i]
+            )
+        )
+
+
         fig.update_layout(title='3D Surface Plot', autosize=True)
         fig.update_layout(
             title='3D PCA Scatter Plot',
             scene=dict(
-                xaxis_title=f'PC1 ({pca.explained_variance_ratio_[0]:0.2f})',
-                yaxis_title=f'PC2 ({pca.explained_variance_ratio_[1]:0.2f})',
-                zaxis_title=f'PC3 ({pca.explained_variance_ratio_[2]:0.2f})'
+                xaxis_title=f'PC1 ({pca.explained_variance_ratio_[0]:0.2f} var.)',
+                yaxis_title=f'PC2 ({pca.explained_variance_ratio_[1]:0.2f} var.)',
+                zaxis_title=f'PC3 ({pca.explained_variance_ratio_[2]:0.2f} var.)'
             )
         )
         fig.show()
@@ -153,9 +179,9 @@ def plot_clusters_seperately(y_labels: List[int], after_mask_indicies: List[int]
 
 # size of figures produced
 # size_fig = (4,3)
-def pca_analysis(clustering_features_df_list):
-    pca = PCA(n_components=len(clustering_features_df_list.columns))
-    pca.fit(clustering_features_df_list.values)
+def pca_analysis(clustering_features_df):
+    pca = PCA(n_components=len(clustering_features_df.columns))
+    pca.fit(clustering_features_df.values)
 
     # plot scree plot
     plt.figure(figsize=size_fig)
@@ -178,7 +204,7 @@ def pca_analysis(clustering_features_df_list):
 
     loadings = pca.components_.T
     pc_labels = [f'PC{i+1}' for i in range(loadings.shape[1])]
-    loadings_df = pd.DataFrame(loadings, index=clustering_features_df_list.columns, columns=pc_labels)
+    loadings_df = pd.DataFrame(loadings, index=clustering_features_df.columns, columns=pc_labels)
     print('\n')
     print(loadings_df)
 
