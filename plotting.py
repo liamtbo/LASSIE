@@ -74,44 +74,50 @@ def plot_pca(clustering_features_df: pd.DataFrame, y_labels: List[int], num_pc, 
         plt.close() # clear figure 
 
     elif num_pc == 3:
+        # Main PCA scatter plot
         fig = go.Figure(data=[go.Scatter3d(
-            x=X_pca[:,0], 
-            y=X_pca[:,1], 
-            z=X_pca[:,2], 
+            x=X_pca[:, 0], 
+            y=X_pca[:, 1], 
+            z=X_pca[:, 2], 
             mode='markers',
-            marker=dict(size=3, color=colors,)
+            marker=dict(size=3, color=colors),
+            name='Data Points'
         )])
-        # Add origin point (0,0)
-        fig.add_trace(go.Scatter(
-            x=[0], y=[0],
+
+        # Origin point at (0,0,0)
+        fig.add_trace(go.Scatter3d(
+            x=[0], y=[0], z=[0],
             mode='markers',
             marker=dict(color='black', size=5),
-            showlegend=False
+            showlegend=False,
+            name='Origin'
         ))
+
+        # Feature loading vectors (e.g. PCA component directions)
         for i, (x, y, z) in enumerate(features_loadings):
             fig.add_trace(go.Scatter3d(
-                x=[0, x*3],
-                y=[0, y*3],
-                z=[0, z*3],
+                x=[0, x * 3],
+                y=[0, y * 3],
+                z=[0, z * 3],
                 mode='lines+text',
                 line=dict(width=5),
                 # text=[None, clustering_features_df.columns[i]],
                 textposition='top center',
                 name=clustering_features_df.columns[i]
-            )
-        )
+            ))
 
-
-        fig.update_layout(title='3D Surface Plot', autosize=True)
+        # Update layout with axis labels and title
         fig.update_layout(
             title='3D PCA Scatter Plot',
+            autosize=True,
             scene=dict(
-                xaxis_title=f'PC1 ({pca.explained_variance_ratio_[0]:0.2f} var.)',
-                yaxis_title=f'PC2 ({pca.explained_variance_ratio_[1]:0.2f} var.)',
-                zaxis_title=f'PC3 ({pca.explained_variance_ratio_[2]:0.2f} var.)'
+                xaxis_title=f'PC1 ({pca.explained_variance_ratio_[0]:.2f} var.)',
+                yaxis_title=f'PC2 ({pca.explained_variance_ratio_[1]:.2f} var.)',
+                zaxis_title=f'PC3 ({pca.explained_variance_ratio_[2]:.2f} var.)'
             )
         )
         fig.show()
+
     # plot
     # plt.savefig(f"figures/{graph_title.lower()}/PCA", bbox_inches='tight')
     
