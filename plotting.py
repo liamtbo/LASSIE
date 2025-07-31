@@ -45,12 +45,14 @@ def plot_pca(clustering_features_df_list: pd.DataFrame, y_labels: List[int], num
     pca = PCA(n_components=num_pc) # reduce data down to 2 dims
     pca.fit(clustering_features_df_list.values)
     X_pca = pca.transform(clustering_features_df_list.values)
-    # plot
-    plt.figure(figsize=size_fig)
-    plt.title(f"{graph_title} Clustering Visualized with pca")
     colors = [label_color_map[label] for label in y_labels]
 
     if num_pc == 2:
+        # plot
+        plt.figure(figsize=size_fig)
+        plt.title(f"{graph_title} Clustering Visualized with pca")
+        plt.xlabel(f'PC1 (var: {pca.explained_variance_ratio_[0]:0.2f})')
+        plt.ylabel(f'PC2 (var: {pca.explained_variance_ratio_[1]:0.2f})')
         plt.scatter(X_pca[:,0], X_pca[:,1], c=colors, alpha=0)
         for i in range(X_pca.shape[0]): # loops over every point
             plt.text(X_pca[i,0], X_pca[i,1], str(i), c=label_color_map[y_labels[i]], fontsize=8)
@@ -78,9 +80,9 @@ def plot_pca(clustering_features_df_list: pd.DataFrame, y_labels: List[int], num
         fig.update_layout(
             title='3D PCA Scatter Plot',
             scene=dict(
-                xaxis_title='PC1',
-                yaxis_title='PC2',
-                zaxis_title='PC3'
+                xaxis_title=f'PC1 ({pca.explained_variance_ratio_[0]:0.2f})',
+                yaxis_title=f'PC2 ({pca.explained_variance_ratio_[1]:0.2f})',
+                zaxis_title=f'PC3 ({pca.explained_variance_ratio_[2]:0.2f})'
             )
         )
         fig.show()
