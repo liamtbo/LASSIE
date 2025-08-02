@@ -76,14 +76,13 @@ def plot_pca(clustering_features_df: pd.DataFrame, y_labels: List[int], num_pc, 
     elif num_pc == 3:
         # Main PCA scatter plot
         fig = go.Figure(data=[go.Scatter3d(
-            x=X_pca[:, 0], 
-            y=X_pca[:, 1], 
-            z=X_pca[:, 2], 
+            x=X_pca[:, 0],
+            y=X_pca[:, 1],
+            z=X_pca[:, 2],
             mode='markers',
             marker=dict(size=3, color=colors),
             name='Data Points'
         )])
-
         # Origin point at (0,0,0)
         fig.add_trace(go.Scatter3d(
             x=[0], y=[0], z=[0],
@@ -92,7 +91,6 @@ def plot_pca(clustering_features_df: pd.DataFrame, y_labels: List[int], num_pc, 
             showlegend=False,
             name='Origin'
         ))
-
         # Feature loading vectors (e.g. PCA component directions)
         for i, (x, y, z) in enumerate(features_loadings):
             fig.add_trace(go.Scatter3d(
@@ -105,7 +103,6 @@ def plot_pca(clustering_features_df: pd.DataFrame, y_labels: List[int], num_pc, 
                 textposition='top center',
                 name=clustering_features_df.columns[i]
             ))
-
         # Update layout with axis labels and title
         fig.update_layout(
             title='3D PCA Scatter Plot',

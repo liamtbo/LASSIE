@@ -3,3 +3,15 @@
 can't find ws 2025 planning & prep
 driving / medication (doctor advised)
 
+
+overall_slope: max_depth, max_resistance
+max_depth: overall_slope, max_resistance, num_peaks
+max_resistance: overall_slope, max_depth, num_peaks,
+num_peaks: max_depth, max_resistance,
+largest_force_drop: None
+curve_shape: None
+
+overall_slope, nums_peaks, largest_force_drop, curve_shape
+max_depth, largest_force_drop, curve_shape
+max_resistance, largest_force_drop, curve_shape
+
