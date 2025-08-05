@@ -187,13 +187,13 @@ def pca_analysis(clustering_features_df):
     pca.fit(clustering_features_df.values)
 
     # plot scree plot
-    plt.figure(figsize=size_fig)
-    plt.title("Scree Plot")
-    plt.xlabel("PC Number")
-    plt.ylabel("Eigenvalue")
-    plt.xticks(range(1, pca.n_components_+1))
-    plt.plot(range(1, pca.n_components_+1), pca.explained_variance_)
-    plt.show()
+    # plt.figure(figsize=size_fig)
+    # plt.title("Scree Plot")
+    # plt.xlabel("PC Number")
+    # plt.ylabel("Eigenvalue")
+    # plt.xticks(range(1, pca.n_components_+1))
+    # plt.plot(range(1, pca.n_components_+1), pca.explained_variance_)
+    # plt.show()
 
     # principal component table
     principle_components_table = pd.DataFrame({
