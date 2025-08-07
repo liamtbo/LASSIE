@@ -36,7 +36,6 @@ def plot_specific_curves(plot_indicies: List[int], depth_resist_curve_df_list, d
         plt.plot(depth_resist_curve_df_list[idx]["depth"], depth_resist_curve_df_list[idx]["resistance"], c='black')
 
 import plotly.graph_objects as go
-import numpy as np
 
 def plot_pca_biplot(pca, clustering_features_df):
     feature_loadings = []
