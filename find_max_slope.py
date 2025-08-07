@@ -5,19 +5,10 @@ import numpy as np
 import matplotlib.pyplot as plt
 import os
 
-"""
-Hello to any future debugger of this script
-This script was initially developed for cleaning an entire folder of force-depth curves
-which is why <df_list> is used. df_list is still being used because I had to change it in
-a time sensitive manner ... 
-"""
-
-
 if len(sys.argv) != 3:
     print('two arguments must be provided: \n')
     print('\t1. data csv file path')
     print('\t2. figure folder path')
-    
 
 filename_path = sys.argv[1]
 save_plots_dst = sys.argv[2]
@@ -29,7 +20,6 @@ ground_start_list = []
 df = pd.read_csv(filename_path, skiprows=2)
 df = df[['toeforce_y', 'toe_position_y']] # takes just the two important columns
 df.columns = ["resistance", "depth"] # rename columns
-
 
 def cm_to_m(cm):
     return cm / 100
