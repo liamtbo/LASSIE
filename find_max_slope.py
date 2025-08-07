@@ -6,9 +6,11 @@ import matplotlib.pyplot as plt
 import os
 
 if len(sys.argv) != 3:
-    print('two arguments must be provided: \n')
+    print('Error: two arguments must be provided:')
     print('\t1. data csv file path')
-    print('\t2. figure folder path')
+    print('\t2. figure folder destination path')
+    print('ex: \n\tpython3 find_max_slope.py penetration_data.csv home')
+    sys.exit(1)
 
 filename_path = sys.argv[1]
 save_plots_dst = sys.argv[2]
