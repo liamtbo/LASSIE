@@ -1,15 +1,17 @@
-from typing import List
+from typing import List, Tuple
 import pandas as pd
 import sys
 import numpy as np
 import matplotlib.pyplot as plt
 import os
 
+# ----------------------------------------------
+"""Load data"""
 if len(sys.argv) != 3:
     print('Error: two arguments must be provided:')
     print('\t1. data csv file path')
     print('\t2. figure folder destination path')
-    print('ex: \n\tpython3 find_max_slope.py penetration_data.csv home')
+    print('ex: \n\tpython3 find_max_slope.py penetration_data.csv .')
     sys.exit(1)
 
 filename_path = sys.argv[1]
@@ -34,7 +36,10 @@ filenames_list.append(filename_path)
 ground = find_ground(pd.read_csv(filename_path))
 ground_start_list.append(ground)
 
-def flip_over_y_axis(df_list):
+# ----------------------------------------------
+# Basic Transformations
+
+def flip_over_y_axis(df_list: List[pd.DataFrame]):
     cleaned_df_list = []
     for df in df_list:
         copy_df = df.copy()
@@ -44,7 +49,7 @@ def flip_over_y_axis(df_list):
 
 df_list = flip_over_y_axis(df_list)
 
-def flip_over_x_axis(df_list):
+def flip_over_x_axis(df_list: List[pd.DataFrame]):
     cleaned_df_list = []
     for df in df_list:
         copy_df = df.copy()
@@ -54,7 +59,7 @@ def flip_over_x_axis(df_list):
 
 df_list = flip_over_x_axis(df_list)
 
-def remove_points_after_max_depth(df_list):
+def remove_points_after_max_depth(df_list: List[pd.DataFrame]):
     cleaned_list = []
     for i, df in enumerate(df_list):
         end_idx = df[df["depth"] == df["depth"].max()].index[0]
@@ -64,7 +69,7 @@ def remove_points_after_max_depth(df_list):
 
 df_list = remove_points_after_max_depth(df_list)
 
-def remove_points_before_min_depth(df_list):
+def remove_points_before_min_depth(df_list: List[pd.DataFrame]):
     cleaned_list = []
     for i, df in enumerate(df_list):
         min_idx = df[df["depth"] == df["depth"].min()].index[0]
@@ -74,7 +79,7 @@ def remove_points_before_min_depth(df_list):
 
 df_list = remove_points_before_min_depth(df_list)
 
-def make_resistance_min_equal_zero(df_list):
+def make_resistance_min_equal_zero(df_list: List[pd.DataFrame]):
     cleaned_df_list = []
     for df in df_list:
         copy_df = df.copy()
@@ -84,14 +89,14 @@ def make_resistance_min_equal_zero(df_list):
 
 df_list = make_resistance_min_equal_zero(df_list)
 
-def num_dataframes_with_ascending_depth(df_list):
+def num_dataframes_with_ascending_depth(df_list: List[pd.DataFrame]):
     count = 0
     for df in df_list:
         if not (df['depth'].is_monotonic_increasing and df['depth'].is_unique): 
             count += 1
     return count
 
-def only_increasing_depth(df_list):
+def only_increasing_depth(df_list: List[pd.DataFrame]):
     cleaned_df_list = []
     for df in df_list:
         mask = [1]  # keep the first row
@@ -120,7 +125,7 @@ def start_curve_at_ground(df_list: List[pd.DataFrame]):
 
 df_list = start_curve_at_ground(df_list)
 
-def interpolate(df_list, num_points):
+def interpolate(df_list: List[pd.DataFrame], num_points):
     interp_df_list = []
     for df in df_list:
         x_intervals = np.linspace(0, df['depth'].max(), num_points, endpoint=True) # 100 points between 0 and trunc_level
@@ -131,7 +136,7 @@ def interpolate(df_list, num_points):
 
 df_list = interpolate(df_list, 500)
 
-def find_max_slope(df_list):
+def find_max_slope(df_list: List[pd.DataFrame]):
     max_slope_list = []
     for i, df in enumerate(df_list):
         res = df['resistance']
@@ -144,6 +149,87 @@ def find_max_slope(df_list):
 
 print(f'max slope: {find_max_slope(df_list)[0]}')
 
+# ----------------------------------------------
+"""Finding Peaks and Valleys"""
+def find_nonincreasing_subranges(df: pd.DataFrame, upper_bound):
+
+    df = df.reset_index(drop=True)
+    nonincreasing_subrange_list = []
+    subrange_start_idx = 0
+    in_nonincreasing_subrange = 0
+    
+    upper_bound = df['resistance'].max() * upper_bound
+
+    for idx in range(1, len(df['resistance'])):
+        print(f'idx res: {df["resistance"].iloc[idx]}')
+        above_threshold = df['resistance'].iloc[idx] > df['resistance'].iloc[subrange_start_idx] + upper_bound
+        print(f'above: {above_threshold}')
+        below_threshold = df['resistance'].iloc[idx] <= df['resistance'].iloc[subrange_start_idx] + upper_bound
+        print(f'below: {below_threshold}')
+        print(f'below_threshold = {df['resistance'].iloc[idx]} <= {df['resistance'].iloc[subrange_start_idx]} + {upper_bound}')
+
+        if above_threshold and in_nonincreasing_subrange:
+            print('above threshold and in_nonincreasing_subrange')
+            in_nonincreasing_subrange = 0
+            subrange = df['resistance'][subrange_start_idx:idx]
+            # print(f'subrange_start_idx: {subrange_start_idx}')
+            # print(f'subrange:\n {subrange}')
+            subrange_start_value = subrange.loc[subrange_start_idx]
+            # need to differentiate between a plateau and a drop
+            num_points_in_subrange = len(subrange)
+            num_points_below_subrange_start = len(subrange[subrange < subrange_start_value])
+            # case: force drop
+            if not num_points_in_subrange: 
+                print('Number of points in subrange is 0. Can\'t divide by 0')
+                sys.exit(1) 
+            if num_points_below_subrange_start / num_points_in_subrange > 0.9:
+                subrange_end_idx = subrange.index[subrange.argmin()]
+            # case: plateau
+            else:
+                subrange_end_idx = idx - 1
+
+            nonincreasing_subrange_list.append((subrange_start_idx, subrange_end_idx))
+
+        if above_threshold:
+            subrange_start_idx = idx
+        if below_threshold and not in_nonincreasing_subrange:
+            print('below threshold')
+            in_nonincreasing_subrange = 1
+            subrange_start_idx = idx - 1
+
+    return nonincreasing_subrange_list
+
+def plot(df_list: List[pd.DataFrame], plot_idx_range: List[int], title: str = 'Depth vs Resistance'):
+    for idx in plot_idx_range:
+        print(f"plot idx: {idx}")
+
+        df = df_list[idx]
+        # percent = 0.1
+        subranges = find_nonincreasing_subranges(df, 0.01)
+        print(f"max_resistance: {df['resistance'].max()}")
+        print(f"subranges: {[(float(df['resistance'].iloc[start]), float(df['resistance'].iloc[end])) for start, end in subranges]}")
+        # print(f"")
+        
+        plt.figure(figsize=(5, 3))
+        
+        # Plot subrange start/end points
+        for start_idx, end_idx in subranges:
+            plt.plot(df['depth'].iloc[start_idx], df['resistance'].iloc[start_idx], marker='v', color='green')
+            plt.plot(df['depth'].iloc[end_idx], df['resistance'].iloc[end_idx], marker='^', color='red')
+        
+        # Plot full depth vs resistance line
+        plt.plot(df['depth'], df['resistance'],linestyle='-')
+        plt.xlabel('Depth (m)')
+        plt.ylabel('Resistance (N)')
+        plt.title(f"{title} - Plot {idx}")
+        plt.grid(True)
+        plt.tight_layout()
+        plt.show()
+
+plot(df_list, plot_idx_range=range(len(df_list)))
+
+# ----------------------------------------------
+"""Folder Creation and Saving of Figures"""
 create_folder_names = ['figures']
 def create_data_folders(create_folder_names, save_plots_dst):
     for folder in create_folder_names:
@@ -154,7 +240,7 @@ def create_data_folders(create_folder_names, save_plots_dst):
 # creates figures folder if it exists
 create_data_folders(create_folder_names, save_plots_dst)
 
-def save_plots(df_list, filenames_list, save_plots_dst, save_bool=False, same_axis_range=True):
+def save_plots(df_list: List[pd.DataFrame], filenames_list, save_plots_dst, save_bool=False, same_axis_range=True):
     if save_bool:
         combined_columnes = pd.concat(df_list, axis=0)
         for i, df in enumerate(df_list):
