@@ -151,49 +151,52 @@ print(f'max slope: {find_max_slope(df_list)[0]}')
 
 # ----------------------------------------------
 """Finding Peaks and Valleys"""
-def find_nonincreasing_subranges(df: pd.DataFrame, upper_bound):
+def find_subrange_end_idx(subrange: pd.DataFrame, subrange_start_idx: int, idx: int):
+    # need to differentiate between a plateau and a drop
+    subrange_start_value = subrange.loc[subrange_start_idx]
+    num_points_in_subrange = len(subrange)
+    num_points_below_subrange_start = len(subrange[subrange < subrange_start_value])
+    # case: force drop
+    if not num_points_in_subrange: 
+        # print('Number of points in subrange is 0. Can\'t divide by 0')
+        sys.exit(1) 
+    if num_points_below_subrange_start / num_points_in_subrange > 0.9:
+        subrange_end_idx = subrange.index[subrange.argmin()]
+    # case: plateau
+    else:
+        subrange_end_idx = idx - 1
+    return subrange_end_idx
+
+def find_nonincreasing_subranges(df: pd.DataFrame, subrange_resistance_upper_bound_ratio, subrange_depth_min_length_ratio):
 
     df = df.reset_index(drop=True)
     nonincreasing_subrange_list = []
     subrange_start_idx = 0
     in_nonincreasing_subrange = 0
     
-    upper_bound = df['resistance'].max() * upper_bound
+    resistance_subrange_upper_bound = df['resistance'].max() * subrange_resistance_upper_bound_ratio
+    depth_subrange_length = df['resistance'].max() * subrange_depth_min_length_ratio
 
     for idx in range(1, len(df['resistance'])):
-        print(f'idx res: {df["resistance"].iloc[idx]}')
-        above_threshold = df['resistance'].iloc[idx] > df['resistance'].iloc[subrange_start_idx] + upper_bound
-        print(f'above: {above_threshold}')
-        below_threshold = df['resistance'].iloc[idx] <= df['resistance'].iloc[subrange_start_idx] + upper_bound
-        print(f'below: {below_threshold}')
-        print(f'below_threshold = {df['resistance'].iloc[idx]} <= {df['resistance'].iloc[subrange_start_idx]} + {upper_bound}')
+        # print(f'idx res: {df["resistance"].iloc[idx]}')
+        above_threshold = df['resistance'].iloc[idx] > df['resistance'].iloc[subrange_start_idx] + resistance_subrange_upper_bound
+        # print(f'above: {above_threshold}')
 
         if above_threshold and in_nonincreasing_subrange:
-            print('above threshold and in_nonincreasing_subrange')
+            # print('above threshold and in_nonincreasing_subrange')
             in_nonincreasing_subrange = 0
             subrange = df['resistance'][subrange_start_idx:idx]
             # print(f'subrange_start_idx: {subrange_start_idx}')
             # print(f'subrange:\n {subrange}')
-            subrange_start_value = subrange.loc[subrange_start_idx]
-            # need to differentiate between a plateau and a drop
-            num_points_in_subrange = len(subrange)
-            num_points_below_subrange_start = len(subrange[subrange < subrange_start_value])
-            # case: force drop
-            if not num_points_in_subrange: 
-                print('Number of points in subrange is 0. Can\'t divide by 0')
-                sys.exit(1) 
-            if num_points_below_subrange_start / num_points_in_subrange > 0.9:
-                subrange_end_idx = subrange.index[subrange.argmin()]
-            # case: plateau
-            else:
-                subrange_end_idx = idx - 1
+            subrange_end_idx = find_subrange_end_idx(subrange, subrange_start_idx, idx)
 
-            nonincreasing_subrange_list.append((subrange_start_idx, subrange_end_idx))
+            if df['depth'].loc[subrange_end_idx] - df['depth'].loc[subrange_start_idx] > depth_subrange_length:
+                nonincreasing_subrange_list.append((subrange_start_idx, subrange_end_idx))
 
         if above_threshold:
             subrange_start_idx = idx
-        if below_threshold and not in_nonincreasing_subrange:
-            print('below threshold')
+        if not above_threshold and not in_nonincreasing_subrange:
+            # print('below threshold')
             in_nonincreasing_subrange = 1
             subrange_start_idx = idx - 1
 
@@ -205,7 +208,7 @@ def plot(df_list: List[pd.DataFrame], plot_idx_range: List[int], title: str = 'D
 
         df = df_list[idx]
         # percent = 0.1
-        subranges = find_nonincreasing_subranges(df, 0.01)
+        subranges = find_nonincreasing_subranges(df, 0.1, 0.1)
         print(f"max_resistance: {df['resistance'].max()}")
         print(f"subranges: {[(float(df['resistance'].iloc[start]), float(df['resistance'].iloc[end])) for start, end in subranges]}")
         # print(f"")
