@@ -44,35 +44,19 @@ def plot_pca_biplot(pca, clustering_features_df):
     return feature_loadings
 
 # plot PCA 
-def plot_pca(clustering_features_df:pd.DataFrame, y_labels:List[int], num_pc:int, graph_title:str, kmeans_centroids:List[List[float]]=[]):
+def plot_pca(clustering_features_df:pd.DataFrame, y_labels:List[int], num_pc:int, graph_title:str, kmeans_centroids:pd.DataFrame=pd.DataFrame()):
     # calculate PCA
     pca = PCA(n_components=num_pc) # reduce data down to 2 dims
     pca.fit(clustering_features_df.values)
     X_pca = pca.transform(clustering_features_df.values)
+    if not kmeans_centroids.empty: 
+        centoid_transformations = pca.transform(kmeans_centroids.values)
+
     colors = [label_color_map[label] for label in y_labels]
 
     features_loadings = plot_pca_biplot(pca, clustering_features_df)
 
-    if num_pc == 2:
-        # plot
-        plt.figure(figsize=size_fig)
-        plt.title(f"{graph_title} Clustering Visualized with pca")
-        plt.xlabel(f'PC1 ({pca.explained_variance_ratio_[0]:0.2f} explained var.)')
-        plt.ylabel(f'PC2 ({pca.explained_variance_ratio_[1]:0.2f} explained var.)')
-        plt.scatter(X_pca[:,0], X_pca[:,1], c=colors, alpha=0)
-        for i in range(X_pca.shape[0]): # loops over every point
-            plt.text(X_pca[i,0], X_pca[i,1], str(i), c=label_color_map[y_labels[i]], fontsize=8)
-        # special cases per algorithm used
-        if graph_title.lower() == "kmeans" and len(kmeans_centroids):
-            centroids_pca = pca.transform(kmeans_centroids)
-            plt.scatter(centroids_pca[:,0], centroids_pca[:,1], c="Red", marker="^", s=180)
-        if graph_title.lower() == "dbscan":
-            plt.scatter([], [], c=label_color_map[max(y_labels)], label='Outliers')
-            plt.legend()
-        plt.show()
-        plt.close() # clear figure 
-
-    elif num_pc == 3:
+    if num_pc == 3:
         labels = [str(i) for i in clustering_features_df.index]
         # Main PCA scatter plot
         fig = go.Figure(data=[go.Scatter3d(
@@ -84,12 +68,18 @@ def plot_pca(clustering_features_df:pd.DataFrame, y_labels:List[int], num_pc:int
             textfont=dict(size=8, color=colors),
             name='Data Points'
         )])
-        # fig.add_trace(go.Scatter3d(
-            
-        #     x=kmeans_centroids[:, 0],
-        #     y=kmeans_centroids[:, 1],
-        #     z=kmeans_centroids[:, 2],
-        # ))
+        if not kmeans_centroids.empty:
+            fig.add_trace(go.Scatter3d(
+                x=centoid_transformations[:, 0],
+                y=centoid_transformations[:, 1],
+                z=centoid_transformations[:, 2],
+                mode='markers',
+                marker=dict(
+                    symbol='diamond',
+                    size=4,
+                    color=[i for i in range(len(centoid_transformations))]
+                )
+            ))
         # Origin point at (0,0,0)
         fig.add_trace(go.Scatter3d(
             x=[0], y=[0], z=[0],
