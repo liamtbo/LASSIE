@@ -44,7 +44,7 @@ def plot_pca_biplot(pca, clustering_features_df):
     return feature_loadings
 
 # plot PCA 
-def plot_pca(clustering_features_df: pd.DataFrame, y_labels: List[int], num_pc, graph_title: str, kmeans_centroids=[]):
+def plot_pca(clustering_features_df:pd.DataFrame, y_labels:List[int], num_pc:int, graph_title:str, kmeans_centroids:List[List[float]]=[]):
     # calculate PCA
     pca = PCA(n_components=num_pc) # reduce data down to 2 dims
     pca.fit(clustering_features_df.values)
@@ -74,19 +74,22 @@ def plot_pca(clustering_features_df: pd.DataFrame, y_labels: List[int], num_pc, 
 
     elif num_pc == 3:
         labels = [str(i) for i in clustering_features_df.index]
-        print(labels)
         # Main PCA scatter plot
         fig = go.Figure(data=[go.Scatter3d(
             x=X_pca[:, 0],
             y=X_pca[:, 1],
             z=X_pca[:, 2],
-            # mode='markers',
             mode='text',
             text=labels,
-            # marker=dict(size=3, color=colors),
             textfont=dict(size=8, color=colors),
             name='Data Points'
         )])
+        # fig.add_trace(go.Scatter3d(
+            
+        #     x=kmeans_centroids[:, 0],
+        #     y=kmeans_centroids[:, 1],
+        #     z=kmeans_centroids[:, 2],
+        # ))
         # Origin point at (0,0,0)
         fig.add_trace(go.Scatter3d(
             x=[0], y=[0], z=[0],
@@ -156,7 +159,7 @@ def plot_clusters_seperately(y_labels: List[int], after_mask_indicies: List[int]
     opacity = 0.5
     labels_mapped_frequency = Counter(y_labels)
     x, y = find_plot_dimensions(len(labels_mapped_frequency))
-    fig, axs = plt.subplots(x,y,figsize=(10,8))
+    fig, axs = plt.subplots(x,y,figsize=(6,4))
     fig.suptitle('Cluster Depth vs Resistance')
     # for each cluster_i
     for i, ax in enumerate(axs.flatten()):
@@ -189,15 +192,6 @@ def plot_clusters_seperately(y_labels: List[int], after_mask_indicies: List[int]
 def pca_analysis(clustering_features_df):
     pca = PCA(n_components=len(clustering_features_df.columns))
     pca.fit(clustering_features_df.values)
-
-    # plot scree plot
-    # plt.figure(figsize=size_fig)
-    # plt.title("Scree Plot")
-    # plt.xlabel("PC Number")
-    # plt.ylabel("Eigenvalue")
-    # plt.xticks(range(1, pca.n_components_+1))
-    # plt.plot(range(1, pca.n_components_+1), pca.explained_variance_)
-    # plt.show()
 
     # principal component table
     principle_components_table = pd.DataFrame({
