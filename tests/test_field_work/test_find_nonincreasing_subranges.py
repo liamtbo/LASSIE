@@ -1,6 +1,7 @@
 import unittest
 import pandas as pd
 import sys
+from typing import List, Tuple
 
 '''
 for idx in resistance
@@ -14,7 +15,7 @@ for idx in resistance
         else:
             subrange_end_idx = idx
 '''
-def find_subrange_end_idx(subrange: pd.Series):
+def find_subrange_end_idx(subrange: pd.Series) -> int:
     # need to differentiate between a plateau and a drop
     subrange_start_idx = subrange.index[0]
     # print(f'subrange_start_idx: {subrange_start_idx}')
@@ -56,96 +57,111 @@ class Test_Find_Subrange_End_Idx(unittest.TestCase):
         subrange = pd.Series([5,5,5,5,4,5,5,5,5,5,5,5,5,5,5,5,5,5,5])
         self.assertEqual(find_subrange_end_idx(subrange), len(subrange)-1)
 
-def find_nonincreasing_subranges(df: pd.DataFrame, subrange_upper_bound_percent: float, subrange_depth_min_length_percent: float):
 
-    df = df.reset_index(drop=True)
-    nonincreasing_subrange_list = []
+def find_nonincreasing_subranges(df: pd.DataFrame, subrange_upper_bound_percent: float, subrange_depth_min_length_percent: float) -> List[Tuple[int, int]]:
+    in_subrange = 0
+    subrange_list = []
     subrange_start_idx = 0
-    in_nonincreasing_subrange = 0
-    
+    res = df['resistance']
     subrange_upper_bound = df['resistance'].max() * subrange_upper_bound_percent
-    subrange_depth_min_length = df['resistance'].max() * subrange_depth_min_length_ratio
+    print(f'subrange_upper_bound: {subrange_upper_bound}')
 
-    for idx in range(1, len(df['resistance'])):
+    for idx in range(1, len(res)):
+        # if not in_subrange: subrange_start_idx = idx
+        if in_subrange: above_threshold = res[idx] > res[subrange_start_idx] + subrange_upper_bound
+        else: above_threshold = res[idx] > res[idx - 1] + subrange_upper_bound
 
-        is_above_threshold = df['resistance'].iloc[idx] > df['resistance'].iloc[subrange_start_idx] + subrange_upper_bound
-
-        if is_above_threshold and in_nonincreasing_subrange:
-            in_nonincreasing_subrange = 0
-            subrange = df['resistance'][subrange_start_idx:idx]
-            # print(subrange)
-            subrange_end_idx = find_subrange_end_idx(subrange, subrange_start_idx, idx)
-
-            subrange_start_value = df['depth'].loc[subrange_start_idx]
-            subrange_end_value = df['depth'].loc[subrange_end_idx]
-
-            if subrange_end_value - subrange_start_value > subrange_depth_min_length:
-                nonincreasing_subrange_list.append((subrange_start_idx, subrange_end_idx))
-
-        if is_above_threshold:
-            subrange_start_idx = idx
-        if not is_above_threshold and not in_nonincreasing_subrange:
-            in_nonincreasing_subrange = 1
+        print(f'idx value: {res[idx]}')
+        if not above_threshold and not in_subrange:
+            print('\tnot above_threshold and not in_subrange')
+            in_subrange = 1
             subrange_start_idx = idx - 1
 
-    return nonincreasing_subrange_list
+        if above_threshold and in_subrange:
+            print('\tabove_threshold and in_subrange')
+            in_subrange = 0
+            subrange_list.append((subrange_start_idx, idx - 1))
 
-subrange_upper_bound = 0
-subrange_depth_min_length_ratio = 0.5
+            previous_idx_start_of_subrange = res[idx] <= res[idx - 1] + subrange_upper_bound
+            if previous_idx_start_of_subrange:
+                print('\tprevious_idx_start_of_subrange')
+                in_subrange = 1
+                subrange_start_idx = idx - 1
 
-# class Test_Find_Drops_Plateues(unittest.TestCase):
+    if in_subrange: subrange_list.append((subrange_start_idx, idx))
+    return subrange_list
 
-#     def test1(self):
-#         resistance = [0,1,2,3,4,5,6,7,7,7,7,10]
-#         df = pd.DataFrame({
-#             'resistance': resistance,
-#             'depth': range(len(resistance))
-#         })
-#         drop_plateaus_subrangs = find_nonincreasing_subranges(df, subrange_upper_bound, subrange_depth_min_length_ratio)
-#         self.assertEqual(drop_plateaus_subrangs, [(7,10)])
 
-#     def test2(self):
-#         df = pd.DataFrame({
-#             'depth': range(10),
-#             'resistance': [0,1,2,2,4,5,6,7,7,10]
-#         })
-#         drop_plateaus_subrangs = find_nonincreasing_subranges(df, subrange_upper_bound, subrange_depth_min_length_ratio)
-#         self.assertEqual(drop_plateaus_subrangs, [(2,3),(7,8)])
+class Test_Find_Drops_Plateues(unittest.TestCase):
 
-#     def test3(self):
-#         df = pd.DataFrame({
-#             'depth': range(10),
-#             'resistance': [0,1,2,3,4,5,6,7,7,7]
-#         })
-#         drop_plateaus_subrangs = find_nonincreasing_subranges(df, subrange_upper_bound, subrange_depth_min_length_ratio)
-#         self.assertEqual(drop_plateaus_subrangs, [])
-    
-#     def test4(self):
-#         df = pd.DataFrame({
-#             'depth': range(10),
-#             'resistance': [0,1,2,3,1,0,5,6,7,10]
-#         })
-#         drop_plateaus_subrangs = find_nonincreasing_subranges(df, subrange_upper_bound, subrange_depth_min_length_ratio)
-#         self.assertEqual(drop_plateaus_subrangs, [(3,5)])
-    
-#     def test5(self):
-#         df = pd.DataFrame({
-#             'depth': range(10),
-#             'resistance': [0,1,2,3,1,0,5,4,1,10]
-#         })
-#         drop_plateaus_subrangs = find_nonincreasing_subranges(df, subrange_upper_bound, subrange_depth_min_length_ratio)
-#         self.assertEqual(drop_plateaus_subrangs, [(4,5), (7,8)])
-    
-#     def test6(self):
-#         df = pd.DataFrame({
-#             'depth': range(10),
-#             'resistance': [0,1,2,0,2,0,2,3,4,6]
-#         })
-#         drop_plateaus_subrangs = find_nonincreasing_subranges(df, subrange_upper_bound, subrange_depth_min_length_ratio)
-#         self.assertEqual(drop_plateaus_subrangs, [(2,6)])
+    def test1(self):
+        res = [1,2,3,4,5,6,7,8,9,10]
+        df = pd.DataFrame({
+            'depth': range(len(res)),
+            'resistance': res
+        })
+        drop_plateaus_subrangs = find_nonincreasing_subranges(df, 0.1, 0.0)
+        self.assertEqual(drop_plateaus_subrangs, [(0,1),(1,2),(2,3),(3,4),(4,5),(5,6),(6,7),(7,8),(8,9)])
 
+    def test2(self):
+        res = [1,2,3,4,5,5,7,8,9,10]
+        df = pd.DataFrame({
+            'depth': range(len(res)),
+            'resistance': res
+        })
+        drop_plateaus_subrangs = find_nonincreasing_subranges(df, 0.0, 0.0)
+        self.assertEqual(drop_plateaus_subrangs, [(4,5)])
+
+    def test3(self):
+        res = [1,2,3,4,5,5,5,8,9,10]
+        df = pd.DataFrame({
+            'depth': range(len(res)),
+            'resistance': res
+        })
+        drop_plateaus_subrangs = find_nonincreasing_subranges(df, 0.0, 0.0)
+        self.assertEqual(drop_plateaus_subrangs, [(4,6)])
+
+    def test4(self):
+        res = [1,2,3,4,5,4,5,8,9,10]
+        df = pd.DataFrame({
+            'depth': range(len(res)),
+            'resistance': res
+        })
+        drop_plateaus_subrangs = find_nonincreasing_subranges(df, 0.0, 0.0)
+        self.assertEqual(drop_plateaus_subrangs, [(4,6)])
+
+    def test5(self):
+        res = [1,2,3,4,5,5,5,8,9,10]
+        df = pd.DataFrame({
+            'depth': range(len(res)),
+            'resistance': res
+        })
+        drop_plateaus_subrangs = find_nonincreasing_subranges(df, 0.2, 0.0)
+        self.assertEqual(drop_plateaus_subrangs, [(0,2),(2,6),(7,9)])
+
+    def test6(self):
+        res = [1,2,3,3,3,4,5,6,7,7,7,8,9,10]
+        df = pd.DataFrame({
+            'depth': range(len(res)),
+            'resistance': res
+        })
+        drop_plateaus_subrangs = find_nonincreasing_subranges(df, 0.0, 0.0)
+        self.assertEqual(drop_plateaus_subrangs, [(2,4),(8,10)])
+
+    # TODO need to add in min subrange len
+    # def test7(self):
+    #     res = [1,2,3,4,5,4,3,4,5,6,7,8,9,10]
+    #     df = pd.DataFrame({
+    #         'depth': range(len(res)),
+    #         'resistance': res
+    #     })
+    #     drop_plateaus_subrangs = find_nonincreasing_subranges(df, 0.1, 0.0)
+    #     self.assertEqual(drop_plateaus_subrangs, [(3,8)])
 
 if __name__ == '__main__':
     unittest.main()
+
+
+
 
     
