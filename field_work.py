@@ -151,56 +151,56 @@ print(f'max slope: {find_max_slope(df_list)[0]}')
 
 # ----------------------------------------------
 """Finding Peaks and Valleys"""
-def find_subrange_end_idx(subrange: pd.DataFrame, subrange_start_idx: int, idx: int):
-    # need to differentiate between a plateau and a drop
-    subrange_start_value = subrange.loc[subrange_start_idx]
-    num_points_in_subrange = len(subrange)
-    num_points_below_subrange_start = len(subrange[subrange < subrange_start_value])
-    # case: force drop
-    if not num_points_in_subrange: 
-        # print('Number of points in subrange is 0. Can\'t divide by 0')
-        sys.exit(1) 
-    if num_points_below_subrange_start / num_points_in_subrange > 0.9:
-        subrange_end_idx = subrange.index[subrange.argmin()]
-    # case: plateau
-    else:
-        subrange_end_idx = idx - 1
-    return subrange_end_idx
-
-def find_nonincreasing_subranges(df: pd.DataFrame, subrange_resistance_upper_bound_ratio, subrange_depth_min_length_ratio):
-
-    df = df.reset_index(drop=True)
-    nonincreasing_subrange_list = []
+def find_nonincreasing_subranges(df: pd.DataFrame, subrange_upper_bound_percent: float, subrange_min_length_percent: float) -> List[Tuple[int, int]]:
+    in_subrange = 0
+    subrange_list = []
     subrange_start_idx = 0
-    in_nonincreasing_subrange = 0
-    
-    resistance_subrange_upper_bound = df['resistance'].max() * subrange_resistance_upper_bound_ratio
-    depth_subrange_length = df['resistance'].max() * subrange_depth_min_length_ratio
+    res = df['resistance']
+    subrange_upper_bound = res.max() * subrange_upper_bound_percent
+    dep = df['depth']
+    subrange_min_length = dep.max() * subrange_min_length_percent
+    print(f'subrange_upper_bound: {subrange_upper_bound}')
 
-    for idx in range(1, len(df['resistance'])):
-        # print(f'idx res: {df["resistance"].iloc[idx]}')
-        above_threshold = df['resistance'].iloc[idx] > df['resistance'].iloc[subrange_start_idx] + resistance_subrange_upper_bound
-        # print(f'above: {above_threshold}')
+    for idx in range(1, len(res)):
+        # if not in_subrange: subrange_start_idx = idx
+        if in_subrange: above_threshold = res[idx] > res[subrange_start_idx] + subrange_upper_bound
+        else: above_threshold = res[idx] > res[idx - 1] + subrange_upper_bound
 
-        if above_threshold and in_nonincreasing_subrange:
-            # print('above threshold and in_nonincreasing_subrange')
-            in_nonincreasing_subrange = 0
-            subrange = df['resistance'][subrange_start_idx:idx]
-            # print(f'subrange_start_idx: {subrange_start_idx}')
-            # print(f'subrange:\n {subrange}')
-            subrange_end_idx = find_subrange_end_idx(subrange, subrange_start_idx, idx)
-
-            if df['depth'].loc[subrange_end_idx] - df['depth'].loc[subrange_start_idx] > depth_subrange_length:
-                nonincreasing_subrange_list.append((subrange_start_idx, subrange_end_idx))
-
-        if above_threshold:
-            subrange_start_idx = idx
-        if not above_threshold and not in_nonincreasing_subrange:
-            # print('below threshold')
-            in_nonincreasing_subrange = 1
+        print(f'idx value: {res[idx]}')
+        if not above_threshold and not in_subrange:
+            print('\tnot above_threshold and not in_subrange')
+            print('\tenter subrange')
+            in_subrange = 1
             subrange_start_idx = idx - 1
 
-    return nonincreasing_subrange_list
+        if above_threshold and in_subrange:
+            print('\tabove_threshold and in_subrange')
+            in_subrange = 0
+            print('\texit subrange')
+            subrange_end_idx = idx - 1 # -1 bc above threshold is a breakout of subrange, thus isn't a part of it
+            
+            subrange_long_enough = dep[subrange_end_idx] - dep[subrange_start_idx] + 1 > subrange_min_length # +1 bc is range is 6-4, that's actually a len of 3 subrange not 2
+            if subrange_long_enough: 
+                print('\tsubrange_long_enough')
+                subrange_list.append((subrange_start_idx, subrange_end_idx))
+
+            previous_idx_is_start_of_next_subrange = res[idx] <= res[subrange_end_idx] + subrange_upper_bound
+            if previous_idx_is_start_of_next_subrange:
+                print('\tprevious_idx_start_of_subrange')
+                in_subrange = 1
+                subrange_start_idx = idx - 1
+
+    # check if last value is in subrange, if true, then adds the subrange conditionally
+    if in_subrange: 
+        print('\tlast value in subrange')
+        subrange_end_idx = idx
+        subrange_long_enough = dep[subrange_end_idx] - dep[subrange_start_idx] + 1 > subrange_min_length # +1 bc is range is 6-4, that's actually a len of 3 subrange not 2
+        print(f'subrange_long_enough = {dep[subrange_end_idx]} - {dep[subrange_start_idx]} + 1 > {subrange_min_length}')
+        if subrange_long_enough:
+            print('\tsubrange_long_enough')
+            subrange_list.append((subrange_start_idx, idx))
+
+    return subrange_list
 
 def plot(df_list: List[pd.DataFrame], plot_idx_range: List[int], title: str = 'Depth vs Resistance'):
     for idx in plot_idx_range:
