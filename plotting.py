@@ -73,13 +73,18 @@ def plot_pca(clustering_features_df: pd.DataFrame, y_labels: List[int], num_pc, 
         plt.close() # clear figure 
 
     elif num_pc == 3:
+        labels = [str(i) for i in clustering_features_df.index]
+        print(labels)
         # Main PCA scatter plot
         fig = go.Figure(data=[go.Scatter3d(
             x=X_pca[:, 0],
             y=X_pca[:, 1],
             z=X_pca[:, 2],
-            mode='markers',
-            marker=dict(size=3, color=colors),
+            # mode='markers',
+            mode='text',
+            text=labels,
+            # marker=dict(size=3, color=colors),
+            textfont=dict(size=8, color=colors),
             name='Data Points'
         )])
         # Origin point at (0,0,0)
