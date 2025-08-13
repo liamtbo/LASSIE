@@ -43,8 +43,16 @@ def plot_pca_biplot(pca, clustering_features_df):
         feature_loadings.append(pca.components_[:,i])
     return feature_loadings
 
+# def extract_numerical_features(df:pd.DataFrame) -> pd.DataFrame:
+    
+
 # plot PCA 
 def plot_pca(clustering_features_df:pd.DataFrame, y_labels:List[int], num_pc:int, graph_title:str, kmeans_centroids:pd.DataFrame=pd.DataFrame()):
+    clustering_features_df = clustering_features_df.copy()
+    potential_features_used = ['overall_slope', 'max_depth', 'max_resistance', 'num_peaks', 'largest_force_drop', 'curve_shape', 'largest_force_drop_level']
+    for col in clustering_features_df.columns:
+        if col not in potential_features_used:
+            clustering_features_df.drop(col, axis=1, inplace=True)
     # calculate PCA
     pca = PCA(n_components=num_pc) # reduce data down to 2 dims
     pca.fit(clustering_features_df.values)
@@ -111,9 +119,6 @@ def plot_pca(clustering_features_df:pd.DataFrame, y_labels:List[int], num_pc:int
             )
         )
         fig.show()
-
-    # plot
-    # plt.savefig(f"figures/{graph_title.lower()}/PCA", bbox_inches='tight')
     
 
 # creates one plot where all curves, colored by their respective cluster, are plotted
