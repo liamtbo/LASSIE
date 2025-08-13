@@ -43,21 +43,26 @@ def plot_pca_biplot(pca, clustering_features_df):
         feature_loadings.append(pca.components_[:,i])
     return feature_loadings
 
-# def extract_numerical_features(df:pd.DataFrame) -> pd.DataFrame:
-    
+def extract_numerical_features(df:pd.DataFrame) -> pd.DataFrame:
+    # should be updated if features are added !
+    numerical_features = ['overall_slope', 'max_depth', 'max_resistance', 'num_peaks', 'largest_force_drop', 'curve_shape', 'largest_force_drop_level']
+    df_copy = df.copy()
+    for col in df.columns:
+        if col not in numerical_features:
+            df_copy.drop(col, axis=1, inplace=True)
+    return df_copy
 
 # plot PCA 
 def plot_pca(clustering_features_df:pd.DataFrame, y_labels:List[int], num_pc:int, graph_title:str, kmeans_centroids:pd.DataFrame=pd.DataFrame()):
     clustering_features_df = clustering_features_df.copy()
-    potential_features_used = ['overall_slope', 'max_depth', 'max_resistance', 'num_peaks', 'largest_force_drop', 'curve_shape', 'largest_force_drop_level']
-    for col in clustering_features_df.columns:
-        if col not in potential_features_used:
-            clustering_features_df.drop(col, axis=1, inplace=True)
+    clustering_features_df = extract_numerical_features(clustering_features_df)
+    
     # calculate PCA
     pca = PCA(n_components=num_pc) # reduce data down to 2 dims
     pca.fit(clustering_features_df.values)
     X_pca = pca.transform(clustering_features_df.values)
-    if not kmeans_centroids.empty: 
+    if not kmeans_centroids.empty:
+        kmeans_centroids = extract_numerical_features(kmeans_centroids)
         centoid_transformations = pca.transform(kmeans_centroids.values)
 
     colors = [label_color_map[label] for label in y_labels]
@@ -142,7 +147,7 @@ def plot_clusters_together(y_labels: List[int], after_mask_indicies: List[int], 
 def find_plot_dimensions(n):
     for i in range(int(math.sqrt(n)), 0, -1):
         if n % i == 0:
-            # prime
+            # case: prime
             if i == 1 or n % i == 1: return find_plot_dimensions(n+1)
             else: return i, n // i
 
