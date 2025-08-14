@@ -207,7 +207,7 @@ def plot(df_list: List[pd.DataFrame], plot_idx_range: List[int], title: str = 'D
         print(f"plot idx: {idx}")
 
         df = df_list[idx]
-        # percent = 0.1
+        # percent = 0.1WWW
         subranges = find_nonincreasing_subranges(df, 0.1, 0.1)
         print(f"max_resistance: {df['resistance'].max()}")
         print(f"subranges: {[(float(df['resistance'].iloc[start]), float(df['resistance'].iloc[end])) for start, end in subranges]}")
@@ -216,9 +216,9 @@ def plot(df_list: List[pd.DataFrame], plot_idx_range: List[int], title: str = 'D
         plt.figure(figsize=(5, 3))
         
         # Plot subrange start/end points
-        for start_idx, end_idx in subranges:
-            plt.plot(df['depth'].iloc[start_idx], df['resistance'].iloc[start_idx], marker='v', color='green')
-            plt.plot(df['depth'].iloc[end_idx], df['resistance'].iloc[end_idx], marker='^', color='red')
+        # for start_idx, end_idx in subranges:
+        #     plt.plot(df['depth'].iloc[start_idx], df['resistance'].iloc[start_idx], marker='v', color='green')
+        #     plt.plot(df['depth'].iloc[end_idx], df['resistance'].iloc[end_idx], marker='^', color='red')
         
         # Plot full depth vs resistance line
         plt.plot(df['depth'], df['resistance'],linestyle='-')
