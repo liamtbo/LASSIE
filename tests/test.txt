@@ -1,17 +1,13 @@
 
+overall_slope -> max_depth, max_resistance, 
+max_depth -> overall_slope, max_resistance, num_peaks
+max_res -> overall_slope, max_depth, num_peaks
+num_peaks -> max_depth, max_res, largest_force_drop, largest_force_drop_res_level
+largest_force_drop -> num_peaks, largest_force_drop_res_level, 
+curve_shape -> None
+largest_force_drop_res_level -> num_peaks, largest_force_drop, 
 
-can't find ws 2025 planning & prep
-driving / medication (doctor advised)
-
-
-overall_slope: max_depth, max_resistance
-max_depth: overall_slope, max_resistance, num_peaks
-max_resistance: overall_slope, max_depth, num_peaks,
-num_peaks: max_depth, max_resistance,
-largest_force_drop: None
-curve_shape: None
-
-overall_slope, nums_peaks, largest_force_drop, curve_shape
-max_depth, largest_force_drop, curve_shape
-max_resistance, largest_force_drop, curve_shape
-
+1. overall_slope, num_peaks, curve_shape,
+2. max_depth, largest_force_drop, curve_shape,
+3. max_res, largest_force_drop, curve_shape,
+4. 

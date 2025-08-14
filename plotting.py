@@ -190,6 +190,7 @@ def plot_clusters_seperately(y_labels: List[int], after_mask_indicies: List[int]
 # size of figures produced
 # size_fig = (4,3)
 def pca_analysis(clustering_features_df):
+    clustering_features_df = extract_numerical_features(clustering_features_df.copy())
     pca = PCA(n_components=len(clustering_features_df.columns))
     pca.fit(clustering_features_df.values)
 
