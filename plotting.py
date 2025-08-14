@@ -45,7 +45,7 @@ def plot_pca_biplot(pca, clustering_features_df):
 
 def extract_numerical_features(df:pd.DataFrame) -> pd.DataFrame:
     # should be updated if features are added !
-    numerical_features = ['overall_slope', 'max_depth', 'max_resistance', 'num_peaks', 'largest_force_drop', 'curve_shape', 'largest_force_drop_level']
+    numerical_features = ['overall_slope', 'max_depth', 'max_resistance', 'num_peaks', 'largest_force_drop', 'curve_shape', 'largest_force_drop_res_level']
     df_copy = df.copy()
     for col in df.columns:
         if col not in numerical_features:
@@ -159,7 +159,7 @@ def plot_clusters_seperately(y_labels: List[int], after_mask_indicies: List[int]
     opacity = 0.5
     labels_mapped_frequency = Counter(y_labels)
     x, y = find_plot_dimensions(len(labels_mapped_frequency))
-    fig, axs = plt.subplots(x,y,figsize=(6,4))
+    fig, axs = plt.subplots(x,y,figsize=(10,6))
     fig.suptitle('Cluster Depth vs Resistance')
     # for each cluster_i
     for i, ax in enumerate(axs.flatten()):
