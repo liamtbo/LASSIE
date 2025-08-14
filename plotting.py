@@ -8,7 +8,7 @@ import re
 
 # unique coloring mappings for categories
 label_color_map = {0: 'red', 1: 'gold', 2: 'blue', 3: 'green', 4: 'purple', 5: 'pink',
-        6: 'brown', 7: 'orange', 8: 'cyan', 9: 'magenta', 10: 'turquoise',
+        6: 'turquoise', 7: 'orange', 8: 'cyan', 9: 'magenta', 10: 'brown',
         11: 'lime', 12: 'teal', 13: 'navy', 14: 'maroon', 15: 'olive',
         16: 'coral', 17: 'grey', 18: 'salmon', 19: 'yellow'}
 
@@ -63,10 +63,10 @@ def plot_pca(clustering_features_df:pd.DataFrame, y_labels:List[int], num_pc:int
     X_pca = pca.transform(clustering_features_df.values)
     if not kmeans_centroids.empty:
         kmeans_centroids = extract_numerical_features(kmeans_centroids)
-        centoid_transformations = pca.transform(kmeans_centroids.values)
+        centroid_transformations = pca.transform(kmeans_centroids.values)
+        centroid_colors = [label_color_map[i] for i in range(len(centroid_transformations))]
 
-    colors = [label_color_map[label] for label in y_labels]
-
+    point_colors = [label_color_map[label] for label in y_labels]
     features_loadings = plot_pca_biplot(pca, clustering_features_df)
 
     if num_pc == 3:
@@ -78,19 +78,19 @@ def plot_pca(clustering_features_df:pd.DataFrame, y_labels:List[int], num_pc:int
             z=X_pca[:, 2],
             mode='text',
             text=labels,
-            textfont=dict(size=8, color=colors),
+            textfont=dict(size=8, color=point_colors),
             name='Data Points'
         )])
         if not kmeans_centroids.empty:
             fig.add_trace(go.Scatter3d(
-                x=centoid_transformations[:, 0],
-                y=centoid_transformations[:, 1],
-                z=centoid_transformations[:, 2],
+                x=centroid_transformations[:, 0],
+                y=centroid_transformations[:, 1],
+                z=centroid_transformations[:, 2],
                 mode='markers',
                 marker=dict(
                     symbol='diamond',
                     size=4,
-                    color=[i for i in range(len(centoid_transformations))]
+                    color=centroid_colors
                 )
             ))
         # Origin point at (0,0,0)
