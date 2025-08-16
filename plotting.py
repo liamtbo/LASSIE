@@ -114,24 +114,24 @@ def plot_pca(clustering_features_df:pd.DataFrame, y_labels:List[int], num_pc:int
                 name=clustering_features_df.columns[i]
             ))
         # Update layout with axis labels and title
-            fig.update_layout(
-                title='3D PCA Scatter Plot',
-                autosize=True,
-                scene=dict(
-                    xaxis=dict(
-                        title=f'PC1 ({pca.explained_variance_ratio_[0]:.2f} var.)',
-                        title_font=dict(size=11)  # change font size here
-                    ),
-                    yaxis=dict(
-                        title=f'PC2 ({pca.explained_variance_ratio_[1]:.2f} var.)',
-                        title_font=dict(size=11)
-                    ),
-                    zaxis=dict(
-                        title=f'PC3 ({pca.explained_variance_ratio_[2]:.2f} var.)',
-                        title_font=dict(size=11)
-                    )
+        fig.update_layout(
+            title='3D PCA Scatter Plot',
+            autosize=True,
+            scene=dict(
+                xaxis=dict(
+                    title=f'PC1 ({pca.explained_variance_ratio_[0]:.2f} var.)',
+                    title_font=dict(size=11)  # change font size here
+                ),
+                yaxis=dict(
+                    title=f'PC2 ({pca.explained_variance_ratio_[1]:.2f} var.)',
+                    title_font=dict(size=11)
+                ),
+                zaxis=dict(
+                    title=f'PC3 ({pca.explained_variance_ratio_[2]:.2f} var.)',
+                    title_font=dict(size=11)
                 )
             )
+        )
         fig.show()
     
 
