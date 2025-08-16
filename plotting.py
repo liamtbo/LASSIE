@@ -53,7 +53,7 @@ def extract_numerical_features(df:pd.DataFrame) -> pd.DataFrame:
     return df_copy
 
 # plot PCA 
-def plot_pca(clustering_features_df:pd.DataFrame, y_labels:List[int], num_pc:int, graph_title:str, kmeans_centroids:pd.DataFrame=pd.DataFrame()):
+def plot_pca(clustering_features_df:pd.DataFrame, y_labels:List[int], num_pc:int, graph_title:str, centroids:pd.DataFrame=pd.DataFrame()):
     clustering_features_df = clustering_features_df.copy()
     clustering_features_df = extract_numerical_features(clustering_features_df)
     
@@ -61,9 +61,9 @@ def plot_pca(clustering_features_df:pd.DataFrame, y_labels:List[int], num_pc:int
     pca = PCA(n_components=num_pc) # reduce data down to 2 dims
     pca.fit(clustering_features_df.values)
     X_pca = pca.transform(clustering_features_df.values)
-    if not kmeans_centroids.empty:
-        kmeans_centroids = extract_numerical_features(kmeans_centroids)
-        centroid_transformations = pca.transform(kmeans_centroids.values)
+    if not centroids.empty:
+        centroids = extract_numerical_features(centroids)
+        centroid_transformations = pca.transform(centroids.values)
         centroid_colors = [label_color_map[i] for i in range(len(centroid_transformations))]
 
     point_colors = [label_color_map[label] for label in y_labels]
@@ -81,7 +81,7 @@ def plot_pca(clustering_features_df:pd.DataFrame, y_labels:List[int], num_pc:int
             textfont=dict(size=8, color=point_colors),
             name='Data Points'
         )])
-        if not kmeans_centroids.empty:
+        if not centroids.empty:
             fig.add_trace(go.Scatter3d(
                 x=centroid_transformations[:, 0],
                 y=centroid_transformations[:, 1],
@@ -108,21 +108,30 @@ def plot_pca(clustering_features_df:pd.DataFrame, y_labels:List[int], num_pc:int
                 y=[0, y * 3],
                 z=[0, z * 3],
                 mode='lines+text',
-                line=dict(width=5),
+                line=dict(width=4),
                 # text=[None, clustering_features_df.columns[i]],
                 textposition='top center',
                 name=clustering_features_df.columns[i]
             ))
         # Update layout with axis labels and title
-        fig.update_layout(
-            title='3D PCA Scatter Plot',
-            autosize=True,
-            scene=dict(
-                xaxis_title=f'PC1 ({pca.explained_variance_ratio_[0]:.2f} var.)',
-                yaxis_title=f'PC2 ({pca.explained_variance_ratio_[1]:.2f} var.)',
-                zaxis_title=f'PC3 ({pca.explained_variance_ratio_[2]:.2f} var.)'
+            fig.update_layout(
+                title='3D PCA Scatter Plot',
+                autosize=True,
+                scene=dict(
+                    xaxis=dict(
+                        title=f'PC1 ({pca.explained_variance_ratio_[0]:.2f} var.)',
+                        title_font=dict(size=11)  # change font size here
+                    ),
+                    yaxis=dict(
+                        title=f'PC2 ({pca.explained_variance_ratio_[1]:.2f} var.)',
+                        title_font=dict(size=11)
+                    ),
+                    zaxis=dict(
+                        title=f'PC3 ({pca.explained_variance_ratio_[2]:.2f} var.)',
+                        title_font=dict(size=11)
+                    )
+                )
             )
-        )
         fig.show()
     
 
