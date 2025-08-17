@@ -170,7 +170,8 @@ def plot_clusters_seperately(y_labels: List[int], curve_indicies: List[int],
     gloabl_max_depth = all_depth_resistance_data['depth'].max()
     gloabl_max_resistance = all_depth_resistance_data['resistance'].max()
 
-    opacity = 0.5
+    if pseudo_corrections.empty: opacity = 0.5
+    else: opacity = 0.1
     labels_mapped_frequency = Counter(y_labels)
     x, y = find_num_subplots(len(labels_mapped_frequency))
 
@@ -191,15 +192,20 @@ def plot_clusters_seperately(y_labels: List[int], curve_indicies: List[int],
         else: ax.set_title(f'{cluster_color.title()} Cluster', fontsize=8)
 
         # for each curve in cluster_i
+        need_category_correction_indicies = []
         for curve_i in cluster_to_curve_indicies[i]:
             cluster_color = label_color_map.get(i, 'black')
             dep_res_curve = depth_resist_curve_df_list[curve_i]
             
             if curve_i in pseudo_corrections.index:
-                cluster_color = label_color_map.get(pseudo_corrections.loc[curve_i]['encoded'], 'black')
-                ax.plot(dep_res_curve['depth'], dep_res_curve['resistance'], color=cluster_color, alpha=1, linewidth=2)
+                need_category_correction_indicies.append(curve_i)
             else:
                 ax.plot(dep_res_curve['depth'], dep_res_curve['resistance'], color=cluster_color, alpha=opacity)
+        # this is not working
+        for curve_i in need_category_correction_indicies:
+            cluster_color = label_color_map.get(pseudo_corrections.loc[curve_i]['encoded'], 'black')
+            dep_res_curve = depth_resist_curve_df_list[curve_i]
+            ax.plot(dep_res_curve['depth'], dep_res_curve['resistance'], color=cluster_color, alpha=1, linewidth=2)
 
     plt.tight_layout()
     plt.show()
