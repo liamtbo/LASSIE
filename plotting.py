@@ -3,8 +3,9 @@ from typing import List
 import math
 from sklearn.decomposition import PCA
 import pandas as pd
-from collections import Counter
+from collections import Counter, defaultdict
 import re
+
 
 # unique coloring mappings for categories
 label_color_map = {0: 'red', 1: 'gold', 2: 'blue', 3: 'green', 4: 'purple', 5: 'pink',
@@ -136,7 +137,8 @@ def plot_pca(clustering_features_df:pd.DataFrame, y_labels:List[int], num_pc:int
     
 
 # creates one plot where all curves, colored by their respective cluster, are plotted
-def plot_clusters_together(y_labels: List[int], after_mask_indicies: List[int], depth_resist_curve_df_list, clustering_method: str = ""):
+def plot_clusters_together(y_labels: List[int], after_mask_indicies: List[int], 
+                           depth_resist_curve_df_list, clustering_method: str = ""):
     a = 0.3
     combined_columns = pd.concat(depth_resist_curve_df_list, axis=0, ignore_index=True)
     plt.figure(figsize=size_fig)
@@ -153,21 +155,29 @@ def plot_clusters_together(y_labels: List[int], after_mask_indicies: List[int], 
     plt.show()
     plt.close() # clear figure 
 
-def find_plot_dimensions(n):
+def find_num_subplots(n):
     for i in range(int(math.sqrt(n)), 0, -1):
         if n % i == 0:
             # case: prime
-            if i == 1 or n % i == 1: return find_plot_dimensions(n+1)
+            if i == 1 or n % i == 1: return find_num_subplots(n+1)
             else: return i, n // i
 
-def plot_clusters_seperately(y_labels: List[int], after_mask_indicies: List[int], depth_resist_curve_df_list, data_features_df, clustering_method: str = "", cluster_category_names=[], filenames=False):
+def plot_clusters_seperately(y_labels: List[int], curve_indicies: List[int], 
+                             depth_resist_curve_df_list: List[pd.DataFrame], clustering_method: str = "", 
+                             cluster_category_names=[], pseudo_corrections:pd.DataFrame=pd.DataFrame()):
+    
     all_depth_resistance_data = pd.concat(depth_resist_curve_df_list, axis=0, ignore_index=True)
     gloabl_max_depth = all_depth_resistance_data['depth'].max()
     gloabl_max_resistance = all_depth_resistance_data['resistance'].max()
 
     opacity = 0.5
     labels_mapped_frequency = Counter(y_labels)
-    x, y = find_plot_dimensions(len(labels_mapped_frequency))
+    x, y = find_num_subplots(len(labels_mapped_frequency))
+
+    cluster_to_curve_indicies = defaultdict(list)
+    for cluster, curve_idx in zip(y_labels, curve_indicies):
+        cluster_to_curve_indicies[cluster].append(curve_idx)
+
     fig, axs = plt.subplots(x,y,figsize=(10,6))
     fig.suptitle('Cluster Depth vs Resistance')
     # for each cluster_i
@@ -177,21 +187,20 @@ def plot_clusters_seperately(y_labels: List[int], after_mask_indicies: List[int]
         ax.set_xlabel('Depth (m)', fontsize=8)
         ax.set_ylabel('Resistance (N)', fontsize=8)
 
-        cluster_color = label_color_map.get(i, 'black')
-        if cluster_category_names: 
-            ax.set_title(f'{cluster_category_names[i].title()} Cluster', fontsize=8)
-            # print(f'{cluster_category_names[i]} Cluster')
-        else: 
-            ax.set_title(f'{cluster_color.title()} Cluster', fontsize=8)
-            # print(f'{cluster_color} Cluster')
+        if cluster_category_names: ax.set_title(f'{cluster_category_names[i].title()} Cluster', fontsize=8)
+        else: ax.set_title(f'{cluster_color.title()} Cluster', fontsize=8)
 
         # for each curve in cluster_i
-        for j in range(len(y_labels)):
-            if i != y_labels[j]:
-                continue
-            dep_res_curve = depth_resist_curve_df_list[after_mask_indicies[j]]
-            ax.plot(dep_res_curve['depth'], dep_res_curve['resistance'], color=cluster_color, alpha=opacity)
-            # print(f'\t{data_features_df.iloc[after_mask_indicies[j]]['filenames']}')
+        for curve_i in cluster_to_curve_indicies[i]:
+            cluster_color = label_color_map.get(i, 'black')
+            dep_res_curve = depth_resist_curve_df_list[curve_i]
+            
+            if curve_i in pseudo_corrections.index:
+                cluster_color = label_color_map.get(pseudo_corrections.loc[curve_i]['encoded'], 'black')
+                ax.plot(dep_res_curve['depth'], dep_res_curve['resistance'], color=cluster_color, alpha=1, linewidth=2)
+            else:
+                ax.plot(dep_res_curve['depth'], dep_res_curve['resistance'], color=cluster_color, alpha=opacity)
+
     plt.tight_layout()
     plt.show()
     plt.close()
@@ -229,11 +238,11 @@ def group_data_by_transect(unique_transects, data_features_df):
     
     return transect_dict
 
-def find_plot_dimensions(n):
+def find_num_subplots(n):
     for i in range(int(math.sqrt(n)), 0, -1):
         if n % i == 0:
             # prime
-            if i == 1 or n % i == 1: return find_plot_dimensions(n+1)
+            if i == 1 or n % i == 1: return find_num_subplots(n+1)
             else: return i, n // i
 
 def plot_transect_subplots(depth_resist_curve_df_list, transect_dict, filename_to_depth_resist):
@@ -241,7 +250,7 @@ def plot_transect_subplots(depth_resist_curve_df_list, transect_dict, filename_t
         masked_indicies = samples.index.tolist()
         # for transect in unique_transects:
         combined_columns = pd.concat(depth_resist_curve_df_list, axis=0, ignore_index=True)
-        x, y = find_plot_dimensions(len(samples))
+        x, y = find_num_subplots(len(samples))
         fig, axs = plt.subplots(x,y,figsize=(10,6))
         fig.suptitle(f"Transect: {transect.title()}")
         for i, ax in enumerate(axs.flatten()):
