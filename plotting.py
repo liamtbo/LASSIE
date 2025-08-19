@@ -9,7 +9,7 @@ import re
 
 # unique coloring mappings for categories
 label_color_map = {0: 'red', 1: 'gold', 2: 'blue', 3: 'green', 4: 'purple', 5: 'pink',
-        6: 'turquoise', 7: 'orange', 8: 'cyan', 9: 'magenta', 10: 'brown',
+        6: 'turquoise', 7: 'orange', 8: 'lime', 9: 'magenta', 10: 'brown',
         11: 'lime', 12: 'teal', 13: 'navy', 14: 'maroon', 15: 'olive',
         16: 'coral', 17: 'grey', 18: 'salmon', 19: 'yellow'}
 
@@ -19,12 +19,16 @@ size_fig = (8,6)
 # given a cluster color, this returns the filenames associated
 def get_curve_idx_from_cluster_color(color, y_labels, after_mask_indicies: List[int], data_features_df):
     print(f"Indexes of curves assigned to {color} cluster: ")
+    indicies = []
     for i, label in enumerate(y_labels):
         if label_color_map[label] == color:
-            print(f'idx: {i}, filename: {data_features_df['filenames'].iloc[after_mask_indicies[i]]}')
+            filename = data_features_df['filenames'].loc[after_mask_indicies[i]]
+            indicies.append(after_mask_indicies[i])
+            print(f'idx: {after_mask_indicies[i]}, filename: {filename}')
+    return indicies
 
 # for plotting specific curve indicies
-def plot_specific_curves(plot_indicies: List[int], depth_resist_curve_df_list, data_features_df):
+def plot_specific_curves(plot_indicies: List[int], depth_resist_curve_df_list, data_features_df, color='black'):
     combined_columns = pd.concat(depth_resist_curve_df_list)
     for idx in plot_indicies:
         plt.figure(figsize=size_fig)
@@ -34,7 +38,7 @@ def plot_specific_curves(plot_indicies: List[int], depth_resist_curve_df_list, d
         plt.xlim([0, combined_columns["depth"].max()])
         plt.ylim([0, combined_columns["resistance"].max()])
         print(data_features_df['filenames'].iloc[idx])
-        plt.plot(depth_resist_curve_df_list[idx]["depth"], depth_resist_curve_df_list[idx]["resistance"], c='black')
+        plt.plot(depth_resist_curve_df_list[idx]["depth"], depth_resist_curve_df_list[idx]["resistance"], c=color)
 
 import plotly.graph_objects as go
 
@@ -170,8 +174,7 @@ def plot_clusters_seperately(y_labels: List[int], curve_indicies: List[int],
     gloabl_max_depth = all_depth_resistance_data['depth'].max()
     gloabl_max_resistance = all_depth_resistance_data['resistance'].max()
 
-    if pseudo_corrections.empty: opacity = 0.5
-    else: opacity = 0.5
+    opacity = 0.5
     labels_mapped_frequency = Counter(y_labels)
     x, y = find_num_subplots(len(labels_mapped_frequency))
 
@@ -181,6 +184,7 @@ def plot_clusters_seperately(y_labels: List[int], curve_indicies: List[int],
 
     if x < y: figsize=(10,6)
     else: figsize=(10,10)
+
     fig, axs = plt.subplots(x,y,figsize=figsize)
     fig.suptitle('Cluster Depth vs Resistance')
     # for each cluster_i
@@ -196,6 +200,7 @@ def plot_clusters_seperately(y_labels: List[int], curve_indicies: List[int],
         # for each curve in cluster_i
         need_category_correction_indicies = []
         for curve_i in cluster_to_curve_indicies[i]:
+
             cluster_color = label_color_map.get(i, 'black')
             dep_res_curve = depth_resist_curve_df_list[curve_i]
             
@@ -206,6 +211,8 @@ def plot_clusters_seperately(y_labels: List[int], curve_indicies: List[int],
 
         for curve_i in need_category_correction_indicies:
             cluster_color = label_color_map.get(pseudo_corrections.loc[curve_i]['encoded'], 'black')
+            # if i == 4:
+            #     print(f'cluster: {i}, curve_i: {curve_i}')
             dep_res_curve = depth_resist_curve_df_list[curve_i]
             ax.plot(dep_res_curve['depth'], dep_res_curve['resistance'], color=cluster_color, alpha=1, linewidth=3)
 
