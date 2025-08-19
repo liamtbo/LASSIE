@@ -179,7 +179,9 @@ def plot_clusters_seperately(y_labels: List[int], curve_indicies: List[int],
     for cluster, curve_idx in zip(y_labels, curve_indicies):
         cluster_to_curve_indicies[cluster].append(curve_idx)
 
-    fig, axs = plt.subplots(x,y,figsize=(10,6))
+    if x < y: figsize=(10,6)
+    else: figsize=(10,10)
+    fig, axs = plt.subplots(x,y,figsize=figsize)
     fig.suptitle('Cluster Depth vs Resistance')
     # for each cluster_i
     for i, ax in enumerate(axs.flatten()):
