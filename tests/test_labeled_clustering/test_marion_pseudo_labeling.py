@@ -3,7 +3,7 @@ import pandas as pd
 from typing import List, Tuple
 import math
 
-def find_marions_labels_centroids(marions_features_df: pd.DataFrame) -> pd.DataFrame:
+def find_labels_centroids(marions_features_df: pd.DataFrame) -> pd.DataFrame:
     marions_features_df['encoded'], uniques = pd.factorize(marions_features_df['marions_ylabels'])
     label_centroids_list = []
     for label_num, label_name in enumerate(uniques):
@@ -23,7 +23,7 @@ class Test_Find_Marions_Labels_Feature_Means(unittest.TestCase):
             'd':[4,4,4,4],
             'marions_ylabels': ['ES-B', 'ES-D', 'ES-B', 'ES-D']
         })
-        marions_centroids = find_marions_labels_centroids(marions_labeled_features_df)
+        marions_centroids = find_labels_centroids(marions_labeled_features_df)
         ground_truth = pd.DataFrame({
             'a':[1.0,1.0,],
             'b':[2.0,2.0,],
