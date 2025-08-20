@@ -166,9 +166,18 @@ def find_num_subplots(n):
             if i == 1 or n % i == 1: return find_num_subplots(n+1)
             else: return i, n // i
 
+def map_cluster_to_idx(y_labels:List[int], curve_idxs:List[int]):
+    zipped_label_to_idx = zip(y_labels, curve_idxs)
+    sorted_label_to_idx = sorted(zipped_label_to_idx, key=lambda x: x[0])
+    cluster_to_idx = defaultdict(list)
+    for cluster, curve_idx in sorted_label_to_idx:
+        cluster_to_idx[cluster].append(curve_idx)
+    return cluster_to_idx
+
 def plot_clusters_seperately(y_labels: List[int], curve_indicies: List[int], 
-                             depth_resist_curve_df_list: List[pd.DataFrame], ylabel_name:str, clustering_method: str = "", 
-                             cluster_category_names=[], pseudo_corrections:pd.DataFrame=pd.DataFrame()):
+                             depth_resist_curve_df_list: List[pd.DataFrame], ylabel_name:str, 
+                             clustering_method: str = "", cluster_category_names=[], bold_indicies=[], 
+                             pseudo_corrections:pd.DataFrame=pd.DataFrame()):
     
     all_depth_resistance_data = pd.concat(depth_resist_curve_df_list, axis=0, ignore_index=True)
     gloabl_max_depth = all_depth_resistance_data['depth'].max()
@@ -178,9 +187,7 @@ def plot_clusters_seperately(y_labels: List[int], curve_indicies: List[int],
     labels_mapped_frequency = Counter(y_labels)
     x, y = find_num_subplots(len(labels_mapped_frequency))
 
-    cluster_to_curve_indicies = defaultdict(list)
-    for cluster, curve_idx in zip(y_labels, curve_indicies):
-        cluster_to_curve_indicies[cluster].append(curve_idx)
+    cluster_to_idx = map_cluster_to_idx(y_labels, curve_indicies)
 
     if x < y: figsize=(10,6)
     else: figsize=(10,10)
@@ -188,20 +195,22 @@ def plot_clusters_seperately(y_labels: List[int], curve_indicies: List[int],
     fig, axs = plt.subplots(x,y,figsize=figsize)
     fig.suptitle('Cluster Depth vs Resistance')
     # for each cluster_i
-    for i, ax in enumerate(axs.flatten()):
+    axs_flattened = axs.flatten()
+    for cluster_i in cluster_to_idx.keys():
+        ax = axs_flattened[cluster_i]
         ax.set_xlim([0,gloabl_max_depth])
         ax.set_ylim([0,gloabl_max_resistance])
         ax.set_xlabel('Depth (m)', fontsize=8)
         ax.set_ylabel('Resistance (N)', fontsize=8)
 
-        if cluster_category_names: ax.set_title(f'{cluster_category_names[i].title()} Cluster', fontsize=8)
+        if cluster_category_names: ax.set_title(f'{cluster_category_names[cluster_i].title()} Cluster', fontsize=8)
         else: ax.set_title(f'{cluster_color.title()} Cluster', fontsize=8)
 
         # for each curve in cluster_i
         need_category_correction_indicies = []
-        for curve_i in cluster_to_curve_indicies[i]:
+        for curve_i in cluster_to_idx[cluster_i]:
 
-            cluster_color = label_color_map.get(i, 'black')
+            cluster_color = label_color_map.get(cluster_i, 'black')
             dep_res_curve = depth_resist_curve_df_list[curve_i]
             
             if curve_i in pseudo_corrections.index:
@@ -218,8 +227,6 @@ def plot_clusters_seperately(y_labels: List[int], curve_indicies: List[int],
     plt.show()
     plt.close()
 
-# size of figures produced
-# size_fig = (4,3)
 def pca_analysis(clustering_features_df):
     clustering_features_df = extract_numerical_features(clustering_features_df.copy())
     pca = PCA(n_components=len(clustering_features_df.columns))
