@@ -3,7 +3,7 @@ import pandas as pd
 from typing import List, Tuple
 import math
 
-label_to_cluster_num = {'ES-B':0,'ES-D':1,}
+label_to_cluster_num = {'ES-B':0,'ES-D':1}
 
 def extract_numerical_features(df:pd.DataFrame) -> pd.DataFrame:
     # should be updated if features are added !

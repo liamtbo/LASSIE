@@ -223,13 +223,13 @@ def plot_clusters_seperately(y_labels: pd.Series,
 
         for curve_i in cluster_bold_idxs:
             curve = curve_data[curve_i]
-            ax.plot(curve['depth'], curve['resistance'], color=cluster_color, alpha=1, linewidth=3)
+            ax.plot(curve['depth'], curve['resistance'], color=cluster_color, alpha=1, linewidth=2)
 
         for curve_i in cluster_correction_idxs:
             label_num = pseudo_corrections.loc[curve_i][f'{ylabel_name}_nums']
             cluster_color = label_color_map.get(label_num, 'black')
             curve = curve_data[curve_i]
-            ax.plot(curve['depth'], curve['resistance'], color=cluster_color, alpha=1, linewidth=3)
+            ax.plot(curve['depth'], curve['resistance'], color=cluster_color, alpha=1, linewidth=2)
 
     plt.tight_layout()
     plt.show()
