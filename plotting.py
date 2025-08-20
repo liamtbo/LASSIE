@@ -211,8 +211,6 @@ def plot_clusters_seperately(y_labels: List[int], curve_indicies: List[int],
 
         for curve_i in need_category_correction_indicies:
             cluster_color = label_color_map.get(pseudo_corrections.loc[curve_i][f'{ylabel_name}_nums'], 'black')
-            # if i == 4:
-            #     print(f'cluster: {i}, curve_i: {curve_i}')
             dep_res_curve = depth_resist_curve_df_list[curve_i]
             ax.plot(dep_res_curve['depth'], dep_res_curve['resistance'], color=cluster_color, alpha=1, linewidth=3)
 
