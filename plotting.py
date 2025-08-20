@@ -167,7 +167,7 @@ def find_num_subplots(n):
             else: return i, n // i
 
 def plot_clusters_seperately(y_labels: List[int], curve_indicies: List[int], 
-                             depth_resist_curve_df_list: List[pd.DataFrame], clustering_method: str = "", 
+                             depth_resist_curve_df_list: List[pd.DataFrame], ylabel_name:str, clustering_method: str = "", 
                              cluster_category_names=[], pseudo_corrections:pd.DataFrame=pd.DataFrame()):
     
     all_depth_resistance_data = pd.concat(depth_resist_curve_df_list, axis=0, ignore_index=True)
@@ -210,7 +210,7 @@ def plot_clusters_seperately(y_labels: List[int], curve_indicies: List[int],
                 ax.plot(dep_res_curve['depth'], dep_res_curve['resistance'], color=cluster_color, alpha=opacity)
 
         for curve_i in need_category_correction_indicies:
-            cluster_color = label_color_map.get(pseudo_corrections.loc[curve_i]['encoded'], 'black')
+            cluster_color = label_color_map.get(pseudo_corrections.loc[curve_i][f'{ylabel_name}_nums'], 'black')
             # if i == 4:
             #     print(f'cluster: {i}, curve_i: {curve_i}')
             dep_res_curve = depth_resist_curve_df_list[curve_i]
