@@ -246,7 +246,19 @@ def plot_clusters_seperately(y_labels: pd.Series,
     plt.close()
 
 def handle_max_depth(curve_data:pd.DataFrame, ax):
-    ax.plot(curve_data['depth'], ax.plot['resistance'])
+    ax.plot(curve_data['depth'], curve_data['resistance'])
+    resistance_at_max_depth = curve_data['resistance'].iloc[curve_data['depth'].values.argmax()]
+    ax.plot([curve_data['depth'].max(),curve_data['depth'].max()], [0, resistance_at_max_depth])
+def handle_max_resistance(curve_data:pd.DataFrame, ax):
+    ax.plot(curve_data['depth'], curve_data['resistance'])
+    depth_at_max_resistance = curve_data['depth'].iloc[curve_data['resistance'].values.argmax()]
+    ax.plot([0,depth_at_max_resistance], [curve_data['resistance'].max(), curve_data['resistance'].max()])
+def handle_num_peaks(curve_data:pd.DataFrame, ax):
+    ax.plot(curve_data['depth'], curve_data['resistance'])
+def handle_largest_force_drop(curve_data:pd.DataFrame, ax):
+    ax.plot(curve_data['depth'], curve_data['resistance'])
+def handle_curve_shape(curve_data:pd.DataFrame, ax):
+    ax.plot(curve_data['depth'], curve_data['resistance'])
 
 def plot_feature_selection(curves_data:List[pd.DataFrame], feature_to_plot_idx:dict[str:List[int]]):
     # find dims of plot
@@ -270,18 +282,24 @@ def plot_feature_selection(curves_data:List[pd.DataFrame], feature_to_plot_idx:d
 
         if feature_name == "max_depth": 
             curve_data = curves_data[feature_to_plot_idx['max_depth'][0]]
-            print(curve_data)
             handle_max_depth(curve_data, ax)
         elif feature_name == "max_resistance":
-            pass
+            curve_data = curves_data[feature_to_plot_idx['max_resistance'][0]]
+            handle_max_resistance(curve_data, ax)
         elif feature_name == "num_peaks":
-            pass
+            curve_data = curves_data[feature_to_plot_idx['num_peaks'][0]]
+            handle_num_peaks(curve_data, ax)
         elif feature_name == "largest_force_drop":
-            pass
+            curve_data = curves_data[feature_to_plot_idx['largest_force_drop'][0]]
+            handle_largest_force_drop(curve_data, ax)
         elif feature_name == "curve_shape":
-            pass
+            curve_data = curves_data[feature_to_plot_idx['curve_shape'][0]]
+            handle_curve_shape(curve_data, ax)
         else:
             print(f'feature name {feature_name} is not an extracted feature')
+    plt.tight_layout()
+    plt.show()
+    plt.close()
 
 
 
