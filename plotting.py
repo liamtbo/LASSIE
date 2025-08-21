@@ -65,7 +65,7 @@ def extract_needed_cols(df:pd.DataFrame, remove_cols:List[str]):
     return df_copy
 
 # plot PCA 
-def plot_pca(clustering_features_df:pd.DataFrame, y_labels:List[int], num_pc:int, graph_title:str, centroids:pd.DataFrame=pd.DataFrame()):
+def plot_pca(clustering_features_df:pd.DataFrame, y_labels:List[int], num_pc:int, graph_title:str, ylabel_name:str, centroids:pd.DataFrame=pd.DataFrame()):
     clustering_features_df = clustering_features_df.copy()
     clustering_features_df = extract_numerical_features(clustering_features_df)
     
@@ -73,10 +73,11 @@ def plot_pca(clustering_features_df:pd.DataFrame, y_labels:List[int], num_pc:int
     pca = PCA(n_components=num_pc) # reduce data down to 2 dims
     pca.fit(clustering_features_df.values)
     X_pca = pca.transform(clustering_features_df.values)
+    centroid_ylabel_nums = centroids[f'{ylabel_name}_nums'].values
     if not centroids.empty:
         centroids = extract_numerical_features(centroids)
         centroid_transformations = pca.transform(centroids.values)
-        centroid_colors = [label_color_map[i] for i in range(len(centroid_transformations))]
+        centroid_colors = [label_color_map[cluster_num] for cluster_num in centroid_ylabel_nums]
 
     point_colors = [label_color_map[label] for label in y_labels]
     features_loadings = plot_pca_biplot(pca, clustering_features_df)
