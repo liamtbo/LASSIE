@@ -57,6 +57,13 @@ def extract_numerical_features(df:pd.DataFrame) -> pd.DataFrame:
             df_copy.drop(col, axis=1, inplace=True)
     return df_copy
 
+def extract_needed_cols(df:pd.DataFrame, remove_cols:List[str]):
+    df_copy = df.copy()
+    for col in df.columns:
+        if col in remove_cols:
+            df_copy.drop(col, axis=1, inplace=True)
+    return df_copy
+
 # plot PCA 
 def plot_pca(clustering_features_df:pd.DataFrame, y_labels:List[int], num_pc:int, graph_title:str, centroids:pd.DataFrame=pd.DataFrame()):
     clustering_features_df = clustering_features_df.copy()
