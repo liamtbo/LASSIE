@@ -14,12 +14,12 @@ def extract_numerical_features(df:pd.DataFrame) -> pd.DataFrame:
             df_copy.drop(col, axis=1, inplace=True)
     return df_copy
 
-def find_labels_centroids(labeled_data: pd.DataFrame, label_to_cluster_num:dict[str,int], ylabel_name:str) -> pd.DataFrame:
-    # remove non-important cols
+def find_labels_centroids(labeled_data: pd.DataFrame, ylabel_to_cluster_num:dict[str,int], ylabel_name:str) -> pd.DataFrame:
     labeled_data = labeled_data.copy()
     numerical_data = extract_numerical_features(labeled_data)
     label_centroids = []
-    for label, label_num in label_to_cluster_num.items():
+    for label, label_num in ylabel_to_cluster_num.items():
+        if label not in labeled_data[ylabel_name].values: continue
         label_data = numerical_data[labeled_data[ylabel_name] == label]
         label_centroid = label_data.mean(axis=0).tolist() # drop cols for mean calculation
         label_centroid.extend([label, label_num]) # append these onto the end

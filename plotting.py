@@ -202,9 +202,10 @@ def plot_clusters_seperately(y_labels: pd.Series,
     fig, axs = plt.subplots(x,y,figsize=figsize)
     fig.suptitle('Cluster Depth vs Resistance')
     # for each cluster_i
+    subplot_idx = 0
     axs_flattened = axs.flatten()
     for cluster_i in cluster_to_idx.keys():
-        ax = axs_flattened[cluster_i]
+        ax = axs_flattened[subplot_idx]
         ax.set_xlim([0,gloabl_max_depth])
         ax.set_ylim([0,gloabl_max_resistance])
         ax.set_xlabel('Depth (m)', fontsize=8)
@@ -237,6 +238,8 @@ def plot_clusters_seperately(y_labels: pd.Series,
             cluster_color = label_color_map.get(label_num, 'black')
             curve = curve_data[curve_i]
             ax.plot(curve['depth'], curve['resistance'], color=cluster_color, alpha=1, linewidth=2)
+
+        subplot_idx += 1
 
     plt.tight_layout()
     plt.show()
