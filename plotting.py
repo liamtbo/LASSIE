@@ -186,7 +186,6 @@ def plot_clusters_seperately(y_labels: pd.Series,
                              curve_data: List[pd.DataFrame], ylabel_name:str, 
                              clustering_method: str = "", cluster_category_names=[], bold_idxs=[], 
                              pseudo_corrections:pd.DataFrame=pd.DataFrame()):
-    
     curve_idxs = y_labels.index.tolist()
     all_depth_resistance_data = pd.concat(curve_data, axis=0, ignore_index=True)
     gloabl_max_depth = all_depth_resistance_data['depth'].max()
@@ -245,6 +244,46 @@ def plot_clusters_seperately(y_labels: pd.Series,
     plt.tight_layout()
     plt.show()
     plt.close()
+
+def handle_max_depth(curve_data:pd.DataFrame, ax):
+    ax.plot(curve_data['depth'], ax.plot['resistance'])
+
+def plot_feature_selection(curves_data:List[pd.DataFrame], feature_to_plot_idx:dict[str:List[int]]):
+    # find dims of plot
+    plot_xdim, plot_ydim = find_num_subplots(len(feature_to_plot_idx.keys()))
+    if plot_xdim < plot_ydim: figsize=(10,6)
+    else: figsize=(10,10)
+    # normalize the x and y axis for every subplot
+    all_depth_resistance_data = pd.concat(curves_data, axis=0, ignore_index=True)
+    gloabl_max_depth = all_depth_resistance_data['depth'].max()
+    gloabl_max_resistance = all_depth_resistance_data['resistance'].max()
+    
+    fig, axs = plt.subplots(plot_xdim, plot_ydim, figsize=figsize)
+    flattened_axs = axs.flatten()
+    for feature_i, feature_name in enumerate(feature_to_plot_idx.keys()): # loop over subplots
+        ax = flattened_axs[feature_i]
+        ax.set_xlim([0,gloabl_max_depth])
+        ax.set_ylim([0,gloabl_max_resistance])
+        ax.set_xlabel('Depth (m)', fontsize=8)
+        ax.set_ylabel('Resistance (N)', fontsize=8)
+        ax.set_title(feature_name.title(), fontsize=8)
+
+        if feature_name == "max_depth": 
+            curve_data = curves_data[feature_to_plot_idx['max_depth'][0]]
+            print(curve_data)
+            handle_max_depth(curve_data, ax)
+        elif feature_name == "max_resistance":
+            pass
+        elif feature_name == "num_peaks":
+            pass
+        elif feature_name == "largest_force_drop":
+            pass
+        elif feature_name == "curve_shape":
+            pass
+        else:
+            print(f'feature name {feature_name} is not an extracted feature')
+
+
 
 def pca_analysis(clustering_features_df):
     clustering_features_df = extract_numerical_features(clustering_features_df.copy())
