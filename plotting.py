@@ -237,7 +237,7 @@ def plot_clusters_seperately(y_labels: pd.Series,
             label_num = pseudo_corrections.loc[curve_i][f'{ylabel_name}_nums']
             cluster_color = label_color_map.get(label_num, 'black')
             curve = curve_data[curve_i]
-            ax.plot(curve['depth'], curve['resistance'], color=cluster_color, alpha=1, linewidth=2)
+            ax.plot(curve['depth'], curve['resistance'], color=cluster_color, alpha=0.5, linewidth=2)
 
         subplot_idx += 1
 
