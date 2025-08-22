@@ -245,64 +245,6 @@ def plot_clusters_seperately(y_labels: pd.Series,
     plt.show()
     plt.close()
 
-def handle_max_depth(curve_data:pd.DataFrame, ax):
-    ax.plot(curve_data['depth'], curve_data['resistance'])
-    resistance_at_max_depth = curve_data['resistance'].iloc[curve_data['depth'].values.argmax()]
-    ax.plot([curve_data['depth'].max(),curve_data['depth'].max()], [0, resistance_at_max_depth])
-def handle_max_resistance(curve_data:pd.DataFrame, ax):
-    ax.plot(curve_data['depth'], curve_data['resistance'])
-    depth_at_max_resistance = curve_data['depth'].iloc[curve_data['resistance'].values.argmax()]
-    ax.plot([0,depth_at_max_resistance], [curve_data['resistance'].max(), curve_data['resistance'].max()])
-def handle_num_peaks(curve_data:pd.DataFrame, ax):
-    ax.plot(curve_data['depth'], curve_data['resistance'])
-def handle_largest_force_drop(curve_data:pd.DataFrame, ax):
-    ax.plot(curve_data['depth'], curve_data['resistance'])
-def handle_curve_shape(curve_data:pd.DataFrame, ax):
-    ax.plot(curve_data['depth'], curve_data['resistance'])
-
-def plot_feature_selection(curves_data:List[pd.DataFrame], feature_to_plot_idx:dict[str:List[int]]):
-    # find dims of plot
-    plot_xdim, plot_ydim = find_num_subplots(len(feature_to_plot_idx.keys()))
-    if plot_xdim < plot_ydim: figsize=(10,6)
-    else: figsize=(10,10)
-    # normalize the x and y axis for every subplot
-    all_depth_resistance_data = pd.concat(curves_data, axis=0, ignore_index=True)
-    gloabl_max_depth = all_depth_resistance_data['depth'].max()
-    gloabl_max_resistance = all_depth_resistance_data['resistance'].max()
-    
-    fig, axs = plt.subplots(plot_xdim, plot_ydim, figsize=figsize)
-    flattened_axs = axs.flatten()
-    for feature_i, feature_name in enumerate(feature_to_plot_idx.keys()): # loop over subplots
-        ax = flattened_axs[feature_i]
-        ax.set_xlim([0,gloabl_max_depth])
-        ax.set_ylim([0,gloabl_max_resistance])
-        ax.set_xlabel('Depth (m)', fontsize=8)
-        ax.set_ylabel('Resistance (N)', fontsize=8)
-        ax.set_title(feature_name.title(), fontsize=8)
-
-        if feature_name == "max_depth": 
-            curve_data = curves_data[feature_to_plot_idx['max_depth'][0]]
-            handle_max_depth(curve_data, ax)
-        elif feature_name == "max_resistance":
-            curve_data = curves_data[feature_to_plot_idx['max_resistance'][0]]
-            handle_max_resistance(curve_data, ax)
-        elif feature_name == "num_peaks":
-            curve_data = curves_data[feature_to_plot_idx['num_peaks'][0]]
-            handle_num_peaks(curve_data, ax)
-        elif feature_name == "largest_force_drop":
-            curve_data = curves_data[feature_to_plot_idx['largest_force_drop'][0]]
-            handle_largest_force_drop(curve_data, ax)
-        elif feature_name == "curve_shape":
-            curve_data = curves_data[feature_to_plot_idx['curve_shape'][0]]
-            handle_curve_shape(curve_data, ax)
-        else:
-            print(f'feature name {feature_name} is not an extracted feature')
-    plt.tight_layout()
-    plt.show()
-    plt.close()
-
-
-
 def pca_analysis(clustering_features_df):
     clustering_features_df = extract_numerical_features(clustering_features_df.copy())
     pca = PCA(n_components=len(clustering_features_df.columns))
