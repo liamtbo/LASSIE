@@ -52,14 +52,14 @@ class Test_Find_Marions_Labels_Feature_Means(unittest.TestCase):
 def euclidean_distance(x: pd.Series, y: pd.Series) -> float:
     return math.sqrt(((y - x) ** 2).sum())
 
-def find_closest_centroid(unlabeled_data_df:pd.DataFrame, marions_centroids:pd.DataFrame, ylabel_name) -> pd.DataFrame:
-    unlabeled_data_df = unlabeled_data_df.copy()
-    unlabeled_data_df = extract_numerical_features(unlabeled_data_df)
+def find_closest_centroid(unlabeled_data:pd.DataFrame, marions_centroids:pd.DataFrame, ylabel_name) -> pd.DataFrame:
+    unlabeled_num_data = extract_numerical_features(unlabeled_data) # returns a new object
+    unlabeled_non_num_data = unlabeled_data.drop(unlabeled_num_data.columns, axis=1)
     
     pseudo_label_list = []
     pseudo_label_num_list = []
-    unlabeled_data_df = unlabeled_data_df.copy()
-    for i, depth_res_curve in unlabeled_data_df.iterrows():
+    unlabeled_num_data = unlabeled_num_data.copy()
+    for i, depth_res_curve in unlabeled_num_data.iterrows():
         min_distance = float('inf')
         min_distance_label = ''
         min_distance_label_num = 0
@@ -68,12 +68,14 @@ def find_closest_centroid(unlabeled_data_df:pd.DataFrame, marions_centroids:pd.D
             if curve_to_label_mean_distance < min_distance:
                 min_distance = curve_to_label_mean_distance
                 min_distance_label = marions_label_centroid[ylabel_name]
-                min_distance_label_num = j
+                min_distance_label_num = marions_label_centroid[f'{ylabel_name}_nums']
         pseudo_label_list.append(min_distance_label)
         pseudo_label_num_list.append(min_distance_label_num)
-    unlabeled_data_df[f'pseudo_{ylabel_name}'] = pseudo_label_list
-    unlabeled_data_df[f'pseudo_{ylabel_name}_num'] = pseudo_label_num_list
-    return unlabeled_data_df
+    unlabeled_num_data[f'pseudo_{ylabel_name}'] = pseudo_label_list
+    unlabeled_num_data[f'pseudo_{ylabel_name}_nums'] = pseudo_label_num_list
+
+    return pd.concat([unlabeled_num_data, unlabeled_non_num_data], axis=1)
+
 
 class Test_Find_Closest_Centroids(unittest.TestCase):
 
@@ -83,6 +85,7 @@ class Test_Find_Closest_Centroids(unittest.TestCase):
             'max_resistance':[1,2,1,2],
             'num_peaks':[1,2,1,2],
             'curve_shape':[1,2,1,2],
+            'filenames':['f0','f1','f2','f3']
         })
         marions_centroids = pd.DataFrame({
             'max_depth':[1.0,2.0,],
@@ -99,9 +102,10 @@ class Test_Find_Closest_Centroids(unittest.TestCase):
             'num_peaks':[1,2,1,2],
             'curve_shape':[1,2,1,2],
             'pseudo_marions_ylabels': ['ES-B','ES-D','ES-B','ES-D'],
-            'pseudo_marions_ylabels_num': [0,1,0,1]
+            'pseudo_marions_ylabels_nums': [0,1,0,1],
+            'filenames':['f0','f1','f2','f3'],
         })
-        print(ground_truth.equals(psuedo_labeled_data_df))
+        print(f'Test_Find_Closest_Centroids test1: {ground_truth.equals(psuedo_labeled_data_df)}')
 
     def test2(self): 
         unlabeled_data_df = pd.DataFrame({
@@ -116,16 +120,17 @@ class Test_Find_Closest_Centroids(unittest.TestCase):
             'num_peaks':[2.0,8.0],
             'curve_shape':[2.0,8.0],
             'marions_ylabels': ['ES-B', 'ES-D'],
-            'encoded': [0,1]
+            'marions_ylabels_nums': [0,1]
         })
         psuedo_labeled_data_df = find_closest_centroid(unlabeled_data_df, marions_centroids, 'marions_ylabels')
+        # print(psuedo_labeled_data_df)
         ground_truth = pd.DataFrame({
             'max_depth':[1,2,3,7,8,9],
             'max_resistance':[1,2,3,7,8,9],
             'num_peaks':[1,2,3,7,8,9],
             'curve_shape':[1,2,3,7,8,9],
             'pseudo_marions_ylabels': ['ES-B','ES-B','ES-B','ES-D','ES-D','ES-D'],
-            'pseudo_marions_ylabels_num': [0,0,0,1,1,1]
+            'pseudo_marions_ylabels_nums': [0,0,0,1,1,1]
         })
         print(ground_truth.equals(psuedo_labeled_data_df))
 

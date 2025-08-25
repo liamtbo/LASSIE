@@ -5,6 +5,7 @@ from sklearn.decomposition import PCA
 import pandas as pd
 from collections import Counter, defaultdict
 import re
+import plotly.graph_objects as go
 
 
 # unique coloring mappings for categories
@@ -40,7 +41,6 @@ def plot_specific_curves(plot_idxs: List[int], curve_data, data_features_df, col
         print(data_features_df['filenames'].iloc[idx])
         plt.plot(curve_data[idx]["depth"], curve_data[idx]["resistance"], c=color)
 
-import plotly.graph_objects as go
 
 def plot_pca_biplot(pca, clustering_features_df):
     feature_loadings = []
@@ -194,8 +194,8 @@ def plot_clusters_seperately(y_labels: pd.Series,
     opacity = 0.5
     labels_mapped_frequency = Counter(y_labels)
     x, y = find_num_subplots(len(labels_mapped_frequency))
-    if x < y: figsize=(10,6)
-    else: figsize=(10,10)
+    if x < y: figsize=(14,6)
+    else: figsize=(8,8)
 
     cluster_to_idx = map_cluster_to_idx(y_labels, curve_idxs)
 
