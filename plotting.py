@@ -160,32 +160,47 @@ def plot_pca(clustering_features_df:pd.DataFrame, y_labels:List[int], num_pc:int
         )
         fig.show()
 
-def plot_pca_steps(clustering_features_df:pd.DataFrame, y_labels:List[int], num_pc:int, graph_title:str, ylabel_name:str, centroids:pd.DataFrame=pd.DataFrame(), only_plot_cluster_labels=[]):
-    clustering_features_df = clustering_features_df.copy()
-    clustering_num_features = extract_numerical_features(clustering_features_df)
+"""
+- plot labeled points (colored based on label)
+    - mask out just the labeled points given
+    - plot only those labels
+- plot labeled points and corresponding centroids (colored based on label)
+    - keep the points above and add centroids too
+- plot labeled points and points that become pseudo labeled to those centroids, all grey, and centroids
+- color them based on pseudo clustering
+- show correcting the labels which changed
+"""
+def plot_pca_steps(clustering_features:pd.DataFrame, y_labels:List[int], num_pc:int, graph_title:str, ylabel_name:str, centroids:pd.DataFrame=pd.DataFrame(), only_plot_cluster_labels=[]):
+    clustering_features = clustering_features.copy()
+    clustering_num_features = extract_numerical_features(clustering_features)
     
-    # calculate PCA
-    pca = PCA(n_components=num_pc) # reduce data down to 2 dims
+    # calculate pca for data and centroids
+    pca = PCA(n_components=num_pc)
     pca.fit(clustering_num_features.values)
     X_pca = pca.transform(clustering_num_features.values)
     centroid_ylabel_nums = centroids[f'{ylabel_name}_nums'].values
-    if not centroids.empty:
-        centroids_nums = extract_numerical_features(centroids)
-        centroid_transformations = pca.transform(centroids_nums.values)
-        centroid_colors = [label_color_map[cluster_num] for cluster_num in centroid_ylabel_nums]
+    centroids_nums = extract_numerical_features(centroids)
+    centroid_transformations = pca.transform(centroids_nums.values)
+    centroid_colors = [label_color_map[cluster_num] for cluster_num in centroid_ylabel_nums]
 
     # get data of the specified clusters
     specified_clusters_mask = pd.Series(y_labels).isin(only_plot_cluster_labels)
     specified_clusters_pca_data = X_pca[specified_clusters_mask]
     specified_clusters_colors = pd.Series(y_labels)[specified_clusters_mask].map(label_color_map).tolist()
+
     specified_clusters_centroids_mask = centroids[f'{ylabel_name}_nums'].isin(only_plot_cluster_labels)
     specified_clusters_centroid_transformations = centroid_transformations[specified_clusters_centroids_mask]
     specified_clusters_centroid_colors = pd.Series(centroid_colors)[specified_clusters_centroids_mask].tolist()
 
-    # pca_data_actual_label_mask = clustering_features_df[specific_clusters_mask]
+    print(clustering_features[:3])
+    labeled_data_mask = clustering_features[f'{ylabel_name}_nums'].isin(only_plot_cluster_labels)
+    # specified_clusters_labeled_data_mask = specified_clusters_mask[labeled_data_mask]
+    # specified_clusters_labeled_data = clustering_features[specified_clusters_labeled_data_mask]
+    # print(specified_clusters_labeled_data)
 
     point_indicies = [str(i) for i in clustering_num_features.index]
-    # Main PCA scatter plot
+
+    # plot points only
     fig = go.Figure(data=[go.Scatter3d(
         x=specified_clusters_pca_data[:, 0],
         y=specified_clusters_pca_data[:, 1],
@@ -195,7 +210,6 @@ def plot_pca_steps(clustering_features_df:pd.DataFrame, y_labels:List[int], num_
         textfont=dict(size=8, color=specified_clusters_colors),
         name='Data Points'
     )])
-
     fig.update_layout(
         title='3D PCA Scatter Plot',
         autosize=True,
@@ -217,18 +231,48 @@ def plot_pca_steps(clustering_features_df:pd.DataFrame, y_labels:List[int], num_
             )
         )
     )
-    if not centroids.empty:
-        fig.add_trace(go.Scatter3d(
-            x=specified_clusters_centroid_transformations[:, 0],
-            y=specified_clusters_centroid_transformations[:, 1],
-            z=specified_clusters_centroid_transformations[:, 2],
-            mode='markers',
-            marker=dict(
-                symbol='diamond',
-                size=4,
-                color=specified_clusters_centroid_colors
-            )
-        ))
+    fig.show()
+
+    # plot centroids ontop of points
+    fig.add_trace(go.Scatter3d(
+        x=specified_clusters_centroid_transformations[:, 0],
+        y=specified_clusters_centroid_transformations[:, 1],
+        z=specified_clusters_centroid_transformations[:, 2],
+        mode='markers',
+        marker=dict(
+            symbol='diamond',
+            size=4,
+            color=specified_clusters_centroid_colors
+        )
+    ))
+    fig.show()
+
+    # plot unlabeled points
+    fig_grey = go.Figure(data=[go.Scatter3d(
+        x=specified_clusters_pca_data[:, 0],
+        y=specified_clusters_pca_data[:, 1],
+        z=specified_clusters_pca_data[:, 2],
+        mode='text',
+        text=point_indicies,
+        textfont=dict(size=8, color="darkgrey"),
+        name='Data Points (Grey)'
+    )])
+    fig_grey.update_layout(fig.layout)  # copy axis ranges, titles, etc.
+    fig_grey.add_trace(go.Scatter3d(
+        x=specified_clusters_centroid_transformations[:, 0],
+        y=specified_clusters_centroid_transformations[:, 1],
+        z=specified_clusters_centroid_transformations[:, 2],
+        mode='markers',
+        marker=dict(
+            symbol='diamond',
+            size=4,
+            color=specified_clusters_centroid_colors
+        )
+    ))
+
+
+    fig_grey.show()
+
     # Origin point at (0,0,0)
     # fig.add_trace(go.Scatter3d(
     #     x=[0], y=[0], z=[0],
@@ -250,7 +294,7 @@ def plot_pca_steps(clustering_features_df:pd.DataFrame, y_labels:List[int], num_
     #         textposition='top center',
     #         name=clustering_num_features.columns[i]
     # ))
-    fig.show()
+    # fig.show()
 
 # creates one plot where all curves, colored by their respective cluster, are plotted
 def plot_clusters_together(y_labels: List[int], after_mask_idxs: List[int], 
