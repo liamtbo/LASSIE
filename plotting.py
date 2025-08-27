@@ -102,7 +102,7 @@ def plot_pca(clustering_features_df:pd.DataFrame, y_labels:List[int], num_pc:int
             mode='text',
             text=point_indicies,
             textfont=dict(size=8, color=point_colors),
-            name='Data Points'
+            name='Data Points',
         )])
         if not centroids.empty:
             fig.add_trace(go.Scatter3d(
@@ -159,7 +159,98 @@ def plot_pca(clustering_features_df:pd.DataFrame, y_labels:List[int], num_pc:int
             )
         )
         fig.show()
+
+def plot_pca_steps(clustering_features_df:pd.DataFrame, y_labels:List[int], num_pc:int, graph_title:str, ylabel_name:str, centroids:pd.DataFrame=pd.DataFrame(), only_plot_cluster_labels=[]):
+    clustering_features_df = clustering_features_df.copy()
+    clustering_num_features = extract_numerical_features(clustering_features_df)
     
+    # calculate PCA
+    pca = PCA(n_components=num_pc) # reduce data down to 2 dims
+    pca.fit(clustering_num_features.values)
+    X_pca = pca.transform(clustering_num_features.values)
+    centroid_ylabel_nums = centroids[f'{ylabel_name}_nums'].values
+    if not centroids.empty:
+        centroids_nums = extract_numerical_features(centroids)
+        centroid_transformations = pca.transform(centroids_nums.values)
+        centroid_colors = [label_color_map[cluster_num] for cluster_num in centroid_ylabel_nums]
+
+    # get data of the specified clusters
+    specified_clusters_mask = pd.Series(y_labels).isin(only_plot_cluster_labels)
+    specified_clusters_pca_data = X_pca[specified_clusters_mask]
+    specified_clusters_colors = pd.Series(y_labels)[specified_clusters_mask].map(label_color_map).tolist()
+    specified_clusters_centroids_mask = centroids[f'{ylabel_name}_nums'].isin(only_plot_cluster_labels)
+    specified_clusters_centroid_transformations = centroid_transformations[specified_clusters_centroids_mask]
+    specified_clusters_centroid_colors = pd.Series(centroid_colors)[specified_clusters_centroids_mask].tolist()
+
+    # pca_data_actual_label_mask = clustering_features_df[specific_clusters_mask]
+
+    point_indicies = [str(i) for i in clustering_num_features.index]
+    # Main PCA scatter plot
+    fig = go.Figure(data=[go.Scatter3d(
+        x=specified_clusters_pca_data[:, 0],
+        y=specified_clusters_pca_data[:, 1],
+        z=specified_clusters_pca_data[:, 2],
+        mode='text',
+        text=point_indicies,
+        textfont=dict(size=8, color=specified_clusters_colors),
+        name='Data Points'
+    )])
+
+    fig.update_layout(
+        title='3D PCA Scatter Plot',
+        autosize=True,
+        scene=dict(
+            xaxis=dict(
+                title=f'PC1 ({pca.explained_variance_ratio_[0]:.2f} var.)',
+                title_font=dict(size=11),  # change font size here
+                range=[-4,4]
+            ),
+            yaxis=dict(
+                title=f'PC2 ({pca.explained_variance_ratio_[1]:.2f} var.)',
+                title_font=dict(size=11),
+                range=[-4,4]
+            ),
+            zaxis=dict(
+                title=f'PC3 ({pca.explained_variance_ratio_[2]:.2f} var.)',
+                title_font=dict(size=11),
+                range=[-4,4]
+            )
+        )
+    )
+    if not centroids.empty:
+        fig.add_trace(go.Scatter3d(
+            x=specified_clusters_centroid_transformations[:, 0],
+            y=specified_clusters_centroid_transformations[:, 1],
+            z=specified_clusters_centroid_transformations[:, 2],
+            mode='markers',
+            marker=dict(
+                symbol='diamond',
+                size=4,
+                color=specified_clusters_centroid_colors
+            )
+        ))
+    # Origin point at (0,0,0)
+    # fig.add_trace(go.Scatter3d(
+    #     x=[0], y=[0], z=[0],
+    #     mode='markers',
+    #     marker=dict(color='black', size=2),
+    #     showlegend=False,
+    #     name='Origin'
+    # ))
+    # Feature loading vectors (e.g. PCA component directions)
+    # features_loadings = plot_pca_biplot(pca, clustering_num_features)
+    # for i, (x, y, z) in enumerate(features_loadings):
+    #     fig.add_trace(go.Scatter3d(
+    #         x=[0, x * 5],
+    #         y=[0, y * 5],
+    #         z=[0, z * 5],
+    #         mode='lines+text',
+    #         line=dict(width=4),
+    #         # text=[None, clustering_features_df.columns[i]],
+    #         textposition='top center',
+    #         name=clustering_num_features.columns[i]
+    # ))
+    fig.show()
 
 # creates one plot where all curves, colored by their respective cluster, are plotted
 def plot_clusters_together(y_labels: List[int], after_mask_idxs: List[int], 
