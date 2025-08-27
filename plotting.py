@@ -29,7 +29,7 @@ def get_curve_idx_from_cluster_color(color, y_labels, after_mask_idxs: List[int]
     return idxs
 
 # for plotting specific curve idxs
-def plot_specific_curves(plot_idxs: List[int], curve_data, data_features_df, color='black'):
+def plot_specific_curves(plot_idxs: List[int], curve_data, data_features_df, color='black', width=1):
     combined_columns = pd.concat(curve_data)
     for idx in plot_idxs:
         plt.figure(figsize=size_fig)
@@ -39,7 +39,7 @@ def plot_specific_curves(plot_idxs: List[int], curve_data, data_features_df, col
         plt.xlim([0, combined_columns["depth"].max()])
         plt.ylim([0, combined_columns["resistance"].max()])
         print(data_features_df['filenames'].iloc[idx])
-        plt.plot(curve_data[idx]["depth"], curve_data[idx]["resistance"], c=color)
+        plt.plot(curve_data[idx]["depth"], curve_data[idx]["resistance"], c=color, linewidth=3)
 
 
 def plot_pca_biplot(pca, clustering_features_df):
@@ -127,9 +127,9 @@ def plot_pca(clustering_features_df:pd.DataFrame, y_labels:List[int], num_pc:int
         # Feature loading vectors (e.g. PCA component directions)
         for i, (x, y, z) in enumerate(features_loadings):
             fig.add_trace(go.Scatter3d(
-                x=[0, x * 3],
-                y=[0, y * 3],
-                z=[0, z * 3],
+                x=[0, x * 5],
+                y=[0, y * 5],
+                z=[0, z * 5],
                 mode='lines+text',
                 line=dict(width=4),
                 # text=[None, clustering_features_df.columns[i]],
@@ -143,15 +143,18 @@ def plot_pca(clustering_features_df:pd.DataFrame, y_labels:List[int], num_pc:int
             scene=dict(
                 xaxis=dict(
                     title=f'PC1 ({pca.explained_variance_ratio_[0]:.2f} var.)',
-                    title_font=dict(size=11)  # change font size here
+                    title_font=dict(size=11),  # change font size here
+                    range=[-4,4]
                 ),
                 yaxis=dict(
                     title=f'PC2 ({pca.explained_variance_ratio_[1]:.2f} var.)',
-                    title_font=dict(size=11)
+                    title_font=dict(size=11),
+                    range=[-4,4]
                 ),
                 zaxis=dict(
                     title=f'PC3 ({pca.explained_variance_ratio_[2]:.2f} var.)',
-                    title_font=dict(size=11)
+                    title_font=dict(size=11),
+                    range=[-4,4]
                 )
             )
         )
