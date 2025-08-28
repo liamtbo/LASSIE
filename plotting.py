@@ -135,7 +135,7 @@ def plot_pca(clustering_features_df:pd.DataFrame, y_labels:List[int], num_pc:int
                 # text=[None, clustering_features_df.columns[i]],
                 textposition='top center',
                 name=clustering_num_features.columns[i]
-            ))
+        ))
         # Update layout with axis labels and title
         fig.update_layout(
             title='3D PCA Scatter Plot',
@@ -160,16 +160,6 @@ def plot_pca(clustering_features_df:pd.DataFrame, y_labels:List[int], num_pc:int
         )
         fig.show()
 
-"""
-- plot labeled points (colored based on label)
-    - mask out just the labeled points given
-    - plot only those labels
-- plot labeled points and corresponding centroids (colored based on label)
-    - keep the points above and add centroids too
-- plot labeled points and points that become pseudo labeled to those centroids, all grey, and centroids
-- color them based on pseudo clustering
-- show correcting the labels which changed
-"""
 def plot_pseudo_labeling_steps(clustering_features:pd.DataFrame, pseudo_labels:List[int], num_pc:int, graph_title:str, ylabel_name:str, centroids:pd.DataFrame=pd.DataFrame(), specific_clusters=[]):
     clustering_features = clustering_features.copy()
     
@@ -195,13 +185,14 @@ def plot_pseudo_labeling_steps(clustering_features:pd.DataFrame, pseudo_labels:L
     specified_clusters_labeled_data = clustering_features[specified_clusters_labeled_data_mask]
     specified_clusters_labeled_data_colors = [label_color_map[label] for label in specified_clusters_labeled_data[f'{ylabel_name}_nums']]
     specified_clusters_labeled_data_point_idxs = [str(i) for i in specified_clusters_labeled_data[f'{ylabel_name}_nums'].index]
+    font_size = 10
     fig = go.Figure(data=[go.Scatter3d(
         x=specified_clusters_labeled_pca_data[:, 0],
         y=specified_clusters_labeled_pca_data[:, 1],
         z=specified_clusters_labeled_pca_data[:, 2],
         mode='text',
         text=specified_clusters_labeled_data_point_idxs,
-        textfont=dict(size=8, color=specified_clusters_labeled_data_colors),
+        textfont=dict(size=font_size, color=specified_clusters_labeled_data_colors),
         name='Data Points'
     )])
     fig.update_layout(
@@ -259,7 +250,7 @@ def plot_pseudo_labeling_steps(clustering_features:pd.DataFrame, pseudo_labels:L
         z=pseudo_num_features_pca[:, 2],
         mode='text',
         text=pseudo_labeled_data_idxs,
-        textfont=dict(size=8, color="darkgrey"),
+        textfont=dict(size=font_size, color="darkgrey"),
         name='Data Points (Grey)'
     )])
     fig_grey.update_layout(fig.layout)  # copy axis ranges, titles, etc.
