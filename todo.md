@@ -28,3 +28,7 @@ Cristina's revisions
     add in image analysis
 
 
+bad ws25 plots: 
+data/cleaned_plots/_Thu_Aug__7_08_55_19_2025.png
+data/cleaned_plots/_Thu_Aug__7_08_57_34_2025.png
+data/cleaned_plots/_Tue_Aug__5_05_54_29_2025.png
