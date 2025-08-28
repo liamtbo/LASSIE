@@ -7,6 +7,9 @@ from collections import Counter, defaultdict
 import re
 import plotly.graph_objects as go
 
+num_features = ['overall_slope', 'max_depth', 'max_resistance', 'num_peaks', 
+                'largest_force_drop', 'curve_shape', 'largest_force_drop_res_level',
+                'mean', 'skew', 'kurtosis']
 
 # unique coloring mappings for categories
 label_color_map = {0: 'red', 1: 'gold', 2: 'blue', 3: 'green', 4: 'purple', 5: 'pink',
@@ -50,7 +53,7 @@ def plot_pca_biplot(pca, clustering_features_df):
 
 def extract_numerical_features(df:pd.DataFrame) -> pd.DataFrame:
     # should be updated if features are added !
-    numerical_features = ['overall_slope', 'max_depth', 'max_resistance', 'num_peaks', 'largest_force_drop', 'curve_shape', 'largest_force_drop_res_level']
+    numerical_features = num_features
     df_copy = df.copy()
     for col in df.columns:
         if col not in numerical_features:
@@ -120,7 +123,7 @@ def plot_pca(clustering_features_df:pd.DataFrame, y_labels:List[int], num_pc:int
         fig.add_trace(go.Scatter3d(
             x=[0], y=[0], z=[0],
             mode='markers',
-            marker=dict(color='black', size=5),
+            marker=dict(color='black', size=3),
             showlegend=False,
             name='Origin'
         ))
@@ -155,7 +158,8 @@ def plot_pca(clustering_features_df:pd.DataFrame, y_labels:List[int], num_pc:int
                     title=f'PC3 ({pca.explained_variance_ratio_[2]:.2f} var.)',
                     title_font=dict(size=11),
                     range=[-4,4]
-                )
+                ),
+                aspectmode="cube" 
             )
         )
         fig.show()
@@ -213,7 +217,8 @@ def plot_pseudo_labeling_steps(clustering_features:pd.DataFrame, pseudo_labels:L
                 title=f'PC3 ({pca.explained_variance_ratio_[2]:.2f} var.)',
                 title_font=dict(size=11),
                 range=[-4,4]
-            )
+            ),
+            aspectmode="cube" 
         )
     )
     fig.show()
