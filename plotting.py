@@ -10,7 +10,7 @@ import plotly.graph_objects as go
 num_features = ['overall_slope', 'max_depth', 'max_resistance', 'num_peaks', 
                 'largest_force_drop', 'curve_shape', 'largest_force_drop_res_level',
                 'mean', 'skew', 'kurtosis', 'q1', 'q2', 'q3', "first_half_slope",
-                "second_half_slope"]
+                "second_half_slope", "largest_force_drop_dep", "largest_force_drop_res"]
 
 # unique coloring mappings for categories
 label_color_map = {0: 'red', 1: 'gold', 2: 'blue', 3: 'green', 4: 'purple', 5: 'pink',
