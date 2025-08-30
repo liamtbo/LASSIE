@@ -25,6 +25,7 @@ label_color_map = {0: 'red', 1: 'gold', 2: 'blue', 3: 'green', 4: 'purple', 5: '
 # size of figures produced
 size_fig = (8,6)
 
+
 # given a cluster color, this returns the filenames associated
 def get_curve_idx_from_cluster_color(color, y_labels, after_mask_idxs: List[int], data_features_df):
     print(f"Indexes of curves assigned to {color} cluster: ")

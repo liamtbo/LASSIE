@@ -3,6 +3,9 @@ import pandas as pd
 from typing import List, Tuple
 import math
 
+def find_idxs(find_filename_idxs: list[str], filenames_list: list[str]) -> list[int]:
+    return [i for i, f in enumerate(filenames_list) if f in find_filename_idxs]
+
 def find_num_subplots(n):
     for i in range(int(math.sqrt(n)), 0, -1):
         if n % i == 0:
