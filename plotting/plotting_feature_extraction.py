@@ -41,17 +41,27 @@ def find_force_drop_subranges(df: pd.DataFrame, percent_of_max_resistance: float
             
     return down_moves_subrange_list
 
+# def find_largest_force_drop(df: pd.DataFrame, subrange_list: List[Tuple]):
+#     curr_max_val = 0
+#     curr_max_level = 0
+#     curr_max_idxs = (-1,-1)
+#     for subrange_start, subrange_end in subrange_list:
+#         subrange_diff = df['resistance'].iloc[subrange_start] - df['resistance'].iloc[subrange_end]
+#         if subrange_diff > curr_max_val: 
+#             curr_max_val = subrange_diff
+#             curr_max_level = df['resistance'].iloc[subrange_start]
+#             curr_max_idxs = (subrange_start, subrange_end)
+#     return curr_max_val, curr_max_level, curr_max_idxs
+
 def find_largest_force_drop(df: pd.DataFrame, subrange_list: List[Tuple]):
-    curr_max_val = 0
-    curr_max_level = 0
-    curr_max_idxs = (-1,-1)
+    curr_max_drop_size = 0
+    curr_max_subrange_idxs = (0,0)
     for subrange_start, subrange_end in subrange_list:
         subrange_diff = df['resistance'].iloc[subrange_start] - df['resistance'].iloc[subrange_end]
-        if subrange_diff > curr_max_val: 
-            curr_max_val = subrange_diff
-            curr_max_level = df['resistance'].iloc[subrange_start]
-            curr_max_idxs = (subrange_start, subrange_end)
-    return curr_max_val, curr_max_level, curr_max_idxs
+        if subrange_diff > curr_max_drop_size: 
+            curr_max_drop_size = subrange_diff
+            curr_max_subrange_idxs = (subrange_start, subrange_end)
+    return curr_max_drop_size, curr_max_subrange_idxs
 
 def handle_max_depth(curve_data:pd.DataFrame, ax):
     ax.plot(curve_data['depth'], curve_data['resistance'])
@@ -71,16 +81,30 @@ def handle_num_peaks(curve_data:pd.DataFrame, ax):
 
 def handle_largest_force_drop(curve_data:pd.DataFrame, ax):
     subranges = find_force_drop_subranges(curve_data, percent_of_max_resistance=0.01)
-    _, _, (largest_drop_start, largest_drop_end) = find_largest_force_drop(curve_data, subranges)
-    if largest_drop_start != -1 and largest_drop_end != -1:
-        ax.plot(curve_data['depth'], curve_data['resistance'])
-        ax.plot(curve_data['depth'].iloc[largest_drop_start], curve_data['resistance'].iloc[largest_drop_start], marker='v', markersize=7, color='#1A85FF')
-        ax.plot(curve_data['depth'].iloc[largest_drop_end], curve_data['resistance'].iloc[largest_drop_end], marker='^', markersize=7, color='#D41159')
+    _, (largest_drop_start, largest_drop_end) = find_largest_force_drop(curve_data, subranges)
+    # if largest_drop_start != -1 and largest_drop_end != -1:
+    ax.plot(curve_data['depth'], curve_data['resistance'])
+    ax.plot(curve_data['depth'].iloc[largest_drop_start], curve_data['resistance'].iloc[largest_drop_start], marker='v', markersize=7, color='#1A85FF')
+    ax.plot(curve_data['depth'].iloc[largest_drop_end], curve_data['resistance'].iloc[largest_drop_end], marker='^', markersize=7, color='#D41159')
 
 def handle_curve_shape(curve_data:pd.DataFrame, ax):
     ax.plot(curve_data['depth'], curve_data['resistance'])
     ax.plot([0,curve_data['depth'].max()], [0,curve_data['resistance'].iloc[curve_data['depth'].values.argmax()]], color='red')
 
+def handle_first_third_slope(curve_data:pd.DataFrame, ax):
+    pass
+
+def handle_second_third_slope(curve_data:pd.DataFrame, ax):
+    pass
+
+def handle_third_third_slope(curve_data:pd.DataFrame, ax):
+    pass
+
+def handle_q1(curve_data:pd.DataFrame, ax):
+    pass
+
+def handle_q3(curve_data:pd.DataFrame, ax):
+    pass
 
 def plot_feature_selection(curves_data:List[pd.DataFrame], feature_to_plot_idx:dict[str:List[int]]):
     # find dims of plot
