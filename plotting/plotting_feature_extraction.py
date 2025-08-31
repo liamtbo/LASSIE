@@ -6,12 +6,25 @@ import math
 def find_idxs(find_filename_idxs: list[str], filenames_list: list[str]) -> list[int]:
     return [i for i, f in enumerate(filenames_list) if f in find_filename_idxs]
 
-def find_num_subplots(n):
+def find_subplot_dims(n):
     for i in range(int(math.sqrt(n)), 0, -1):
         if n % i == 0:
             # case: prime
-            if i == 1 or n % i == 1: return find_num_subplots(n+1)
+            if (i == 1 or n % i == 1): 
+                return find_subplot_dims(n+1)
             else: return i, n // i
+
+def find_subplot_dims_orientation(n):
+    x, y = find_subplot_dims(n)
+    print(x, y)
+    if y > 3:
+        num_plots = y * x
+        y = 3
+        curr_plots = 0
+        while curr_plots < num_plots:
+            x += 1
+            curr_plots = y * x
+    return x, y
 
 def find_force_drop_subranges(df: pd.DataFrame, percent_of_max_resistance: float):
     down_moves_subrange_list = []
@@ -130,12 +143,12 @@ def handle_quartile_3(curve_data:pd.DataFrame, ax):
 def plot_feature_selection(feature_names:List[str], curves_data:List[pd.DataFrame], plot_idx:int):
     # find dims of plot
     # TODO un-hardcode this
-    # plot_xdim, plot_ydim = find_num_subplots(len(feature_names))
-    plot_xdim = 5
-    plot_ydim = 3
-    # if plot_xdim < plot_ydim: figsize=(10,6)
-    # else: figsize=(10,10)
-    figsize=(6,10)
+    # plot_xdim, plot_ydim = find_subplot_dims(len(feature_names))
+    plot_xdim, plot_ydim = find_subplot_dims_orientation(len(feature_names))
+    print(f'plot_xdim: {plot_xdim}\nplot_ydim: {plot_ydim}')
+    if plot_xdim < plot_ydim: figsize=(10,6)
+    else: figsize=(10,10)
+    figsize=(10,20)
 
     # normalize the x and y axis for every subplot
     all_depth_resistance_data = pd.concat(curves_data, axis=0, ignore_index=True)

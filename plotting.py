@@ -323,11 +323,11 @@ def plot_clusters_together(y_labels: List[int], after_mask_idxs: List[int],
     plt.show()
     plt.close() # clear figure 
 
-def find_num_subplots(n):
+def find_subplot_dims(n):
     for i in range(int(math.sqrt(n)), 0, -1):
         if n % i == 0:
             # case: prime
-            if i == 1 or n % i == 1: return find_num_subplots(n+1)
+            if i == 1 or n % i == 1: return find_subplot_dims(n+1)
             else: return i, n // i
 
 def map_cluster_to_idx(y_labels:List[int], curve_idxs:List[int]):
@@ -349,7 +349,7 @@ def plot_clusters_seperately(y_labels: pd.Series,
 
     opacity = 0.5
     labels_mapped_frequency = Counter(y_labels)
-    x, y = find_num_subplots(len(labels_mapped_frequency))
+    x, y = find_subplot_dims(len(labels_mapped_frequency))
     if x < y: figsize=(14,6)
     else: figsize=(8,8)
 
@@ -432,11 +432,11 @@ def group_data_by_transect(unique_transects, data_features_df):
     
     return transect_dict
 
-def find_num_subplots(n):
+def find_subplot_dims(n):
     for i in range(int(math.sqrt(n)), 0, -1):
         if n % i == 0:
             # prime
-            if i == 1 or n % i == 1: return find_num_subplots(n+1)
+            if i == 1 or n % i == 1: return find_subplot_dims(n+1)
             else: return i, n // i
 
 def plot_transect_subplots(curve_data, transect_dict, filename_to_depth_resist):
@@ -444,7 +444,7 @@ def plot_transect_subplots(curve_data, transect_dict, filename_to_depth_resist):
         masked_idxs = samples.index.tolist()
         # for transect in unique_transects:
         combined_columns = pd.concat(curve_data, axis=0, ignore_index=True)
-        x, y = find_num_subplots(len(samples))
+        x, y = find_subplot_dims(len(samples))
         fig, axs = plt.subplots(x,y,figsize=(10,6))
         fig.suptitle(f"Transect: {transect.title()}")
         for i, ax in enumerate(axs.flatten()):
