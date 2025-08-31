@@ -79,40 +79,62 @@ def handle_curve_shape(curve_data:pd.DataFrame, ax):
     ax.plot(curve_data['depth'], curve_data['resistance'])
     ax.plot([0,curve_data['depth'].max()], [0,curve_data['resistance'].iloc[curve_data['depth'].values.argmax()]], color='red')
 
+def handle_largest_force_drop_dep(curve_data:pd.DataFrame, ax):
+    ax.plot(curve_data['depth'], curve_data['resistance'])
+    res = curve_data['resistance']
+    dep = curve_data['depth']
+    _, (subrange_start, subrange_end) = find_largest_force_drop(curve_data, find_force_drop_subranges(curve_data, 0.001))
+    ax.plot([dep.loc[subrange_start], dep.loc[subrange_start]], [0,res.loc[subrange_start]], color='red')
+
+def handle_largest_force_drop_res(curve_data:pd.DataFrame, ax):
+    ax.plot(curve_data['depth'], curve_data['resistance'])
+    res = curve_data['resistance']
+    dep = curve_data['depth']
+    _, (subrange_start, subrange_end) = find_largest_force_drop(curve_data, find_force_drop_subranges(curve_data, 0.001))
+    ax.plot([0,dep.loc[subrange_start]], [res.loc[subrange_start], res.loc[subrange_start]], color='red')
+
 def handle_first_quarter_slope(curve_data:pd.DataFrame, ax):
     ax.plot(curve_data['depth'], curve_data['resistance'])
     res = curve_data['resistance']
     dep = curve_data['depth']
-    ax.plot([0,dep.quantile(0.33)], [0,res.quantile(0.33)], color='red')
+    ax.plot([0,dep.loc[round(0.25 * len(dep))]], [0,res.loc[round(0.25 * len(res))]], color='red')
 
 def handle_second_quarter_slope(curve_data:pd.DataFrame, ax):
     ax.plot(curve_data['depth'], curve_data['resistance'])
     res = curve_data['resistance']
     dep = curve_data['depth']
-    ax.plot([dep.quantile(0.33),dep.quantile(0.66)], [res.quantile(0.33),res.quantile(0.66)], color='red')
+    ax.plot([dep.loc[round(0.25 * len(dep))], dep.loc[round(0.50 * len(dep))]], 
+            [res.loc[round(0.25 * len(res))], res.loc[round(0.50 * len(res))]], color='red')
 
 def handle_third_quarter_slope(curve_data:pd.DataFrame, ax):
     ax.plot(curve_data['depth'], curve_data['resistance'])
     res = curve_data['resistance']
     dep = curve_data['depth']
-    ax.plot([dep.quantile(0.66),dep.max()], [res.quantile(0.66),res.max()], color='red')
+    ax.plot([dep.loc[round(0.50 * len(dep))], dep.loc[round(0.75 * len(dep))]], 
+            [res.loc[round(0.50 * len(res))], res.loc[round(0.75 * len(res))]], color='red')
 
 def handle_fourth_quarter_slope(curve_data:pd.DataFrame, ax):
     ax.plot(curve_data['depth'], curve_data['resistance'])
     res = curve_data['resistance']
     dep = curve_data['depth']
-    ax.plot([dep.quantile(0.66),dep.max()], [res.quantile(0.66),res.max()], color='red')
+    ax.plot([dep.loc[round(0.75 * len(dep))], dep.max()], 
+            [res.loc[round(0.75 * len(res))], res.max()], color='red')
 
-
-def handle_q1(curve_data:pd.DataFrame, ax):
+def handle_quartile_1(curve_data:pd.DataFrame, ax):
     ax.plot(curve_data['depth'], curve_data['resistance'])
     res = curve_data['resistance']
     dep = curve_data['depth']
     q1_res = res.quantile(0.25)
-
     ax.plot([0,dep.max()], [q1_res, q1_res], color='red')
 
-def handle_q3(curve_data:pd.DataFrame, ax):
+def handle_quartile_2(curve_data:pd.DataFrame, ax):
+    ax.plot(curve_data['depth'], curve_data['resistance'])
+    res = curve_data['resistance']
+    dep = curve_data['depth']
+    q2_res = res.quantile(0.50)
+    ax.plot([0,dep.max()], [q2_res, q2_res], color='red')
+
+def handle_quartile_3(curve_data:pd.DataFrame, ax):
     ax.plot(curve_data['depth'], curve_data['resistance'])
     res = curve_data['resistance']
     dep = curve_data['depth']
@@ -146,35 +168,36 @@ def plot_feature_selection(feature_names:List[str], curves_data:List[pd.DataFram
         ax.set_title(feature_name.title(), fontsize=font_size)
 
         curve_data = curves_data[plot_idx]
-        if feature_name == "max_depth": 
+        if feature_name.lower() == "max_depth": 
             handle_max_depth(curve_data, ax)
-        elif feature_name == "max_resistance":
+        elif feature_name.lower() == "max_resistance":
             handle_max_resistance(curve_data, ax)
-        elif feature_name == "num_peaks":
+        elif feature_name.lower() == "num_peaks":
             ax.set_title(f'{feature_name.title()} (Normalized)', fontsize=font_size)
             handle_num_peaks(curve_data, ax)
-        elif feature_name == "largest_force_drop":
+        elif feature_name.lower() == "largest_force_drop":
             handle_largest_force_drop(curve_data, ax)
-        elif feature_name == "curve_shape":
+        elif feature_name.lower() == "curve_shape":
             handle_curve_shape(curve_data, ax)
-        # elif feature_name == "first_quarter_slope":
-        #     curve_data = curves_data[feature_to_plot_idx["first_quarter_slope"][0]]
-            # handle_first_third_slope(curve_data, ax)
-        # elif feature_name == "second_quarter_slope":
-        #     curve_data = curves_data[feature_to_plot_idx["second_quarter_slope"][0]]
-        #     # handle_second_third_slope(curve_data, ax)
-        # elif feature_name == "third_quarter_slope":
-        #     curve_data = curves_data[feature_to_plot_idx["third_quarter_slope"][0]]
-        #     # handle_third_third_slope(curve_data, ax)
-        # elif feature_name == "fourth_quarter_slope":
-        #     curve_data = curves_data[feature_to_plot_idx["fourth_quarter_slope"][0]]
-            # handle_third_third_slope(curve_data, ax)
-        # elif feature_name == "q1":
-        #     curve_data = curves_data[feature_to_plot_idx["q1"][0]]
-        #     handle_q1(curve_data, ax)
-        # elif feature_name == "q3":
-        #     curve_data = curves_data[feature_to_plot_idx["q3"][0]]
-        #     handle_q3(curve_data, ax)
+        # TODO need to add in lagest froce drop dep and res here
+        elif feature_name.lower() == "largest_force_drop_dep":
+            handle_largest_force_drop_dep(curve_data, ax)
+        elif feature_name.lower() == "largest_force_drop_res":
+            handle_largest_force_drop_res(curve_data, ax)
+        elif feature_name.lower() == "first_quarter_slope":
+            handle_first_quarter_slope(curve_data, ax)
+        elif feature_name.lower() == "second_quarter_slope":
+            handle_second_quarter_slope(curve_data, ax)
+        elif feature_name.lower() == "third_quarter_slope":
+            handle_third_quarter_slope(curve_data, ax)
+        elif feature_name.lower() == "fourth_quarter_slope":
+            handle_fourth_quarter_slope(curve_data, ax)
+        elif feature_name.lower() == "quartile_1":
+            handle_quartile_1(curve_data, ax)
+        elif feature_name.lower() == "quartile_2":
+            handle_quartile_1(curve_data, ax)
+        elif feature_name.lower() == "quartile_3":
+            handle_quartile_3(curve_data, ax)
         else:
             print(f'feature name {feature_name} is not an extracted feature')
     plt.tight_layout()

@@ -10,9 +10,8 @@ import plotly.graph_objects as go
 # not all of these are used
 num_features = ['overall_slope', 'max_depth', 'max_resistance', 'num_peaks', 
                 'largest_force_drop', 'curve_shape', 'largest_force_drop_res_level',
-                'mean', 'skew', 'kurtosis', 'q1', 'q2', 'q3', "first_half_slope",
-                "second_half_slope", "largest_force_drop_dep", "largest_force_drop_res",
-                "first_third_slope", "second_third_slope", "third_third_slope",
+                'mean', 'skew', 'kurtosis', 'quartile_1', 'quartile_2', 'quartile_3', 
+                "largest_force_drop_dep", "largest_force_drop_res",
                 "first_quarter_slope", "second_quarter_slope", "third_quarter_slope", 
                 "fourth_quarter_slope"]
 
