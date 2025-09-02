@@ -1,15 +1,4 @@
-order of ops
-    implement pseudo labeling process visual
-    cristina's recomendations
-    freya's recomendations
 
-
-General comments
-    break up full slides into multiple slides
-    if a single slide has a lot of information, use transitions to load in one part at a time
-    freyas recomendations
-
-finish pseudo label descirption
 
 Cristina's revisions
     dataset
@@ -27,8 +16,30 @@ Cristina's revisions
         think about how to add in a principla component descirption of each of marion's labels
     add in image analysis
 
-
-bad ws25 plots: 
-data/cleaned_plots/_Thu_Aug__7_08_55_19_2025.png
-data/cleaned_plots/_Thu_Aug__7_08_57_34_2025.png
-data/cleaned_plots/_Tue_Aug__5_05_54_29_2025.png
+Ian Michael practice
+    Priority! LOCATE IMAGES
+    general
+        use animations to and red boxed to walk through a slide
+        no 3d plot spins on a slide
+        state problem and this as a solution
+        add slide nums
+    marions surface classifications
+        make it more obvious plot is associated to surface name (gray background)
+        write out fill names like bubbly
+    feature engineering
+        ian asked why these
+        it's a lot to look at, and names are small on plot
+        split featues into categories
+    correlation matrix (analysis) semi -helpful (keep in)
+    PCA plot
+        explanation is very complicated
+        didn't get much out of 3d plot graphics (only have rotating 3d plot by itself on one slide)
+        since 3d plot explanation is very complicated, either remove explanation or make it like how I explained it to cristina originally
+    pseudo labeling steps
+        use animations to walk through slide
+    marion's pseudo labeling
+        give a single plot example of curves switching labels
+        talk about function doesn't have enough data to accurately represent the training data as a reason
+    
+    
+    

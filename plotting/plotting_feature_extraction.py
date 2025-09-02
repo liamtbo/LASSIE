@@ -142,13 +142,14 @@ def handle_quartile_3(curve_data:pd.DataFrame, ax):
 
 def plot_feature_selection(feature_names:List[str], curves_data:List[pd.DataFrame], plot_idx:int):
     # find dims of plot
-    # TODO un-hardcode this
-    # plot_xdim, plot_ydim = find_subplot_dims(len(feature_names))
-    plot_xdim, plot_ydim = find_subplot_dims_orientation(len(feature_names))
-    print(f'plot_xdim: {plot_xdim}\nplot_ydim: {plot_ydim}')
-    if plot_xdim < plot_ydim: figsize=(10,6)
-    else: figsize=(10,10)
-    figsize=(10,20)
+    # plot_xdim, plot_ydim = find_subplot_dims_orientation(len(feature_names))
+    # swtich x and y for presentation plots bc slides are horizontal in size
+    plot_ydim, plot_xdim = find_subplot_dims_orientation(len(feature_names))
+
+
+    # figsize=(round(plot_xdim*2), round(plot_ydim*5))
+    figsize=(round(plot_xdim*5), round(plot_ydim*1.5))
+
 
     # normalize the x and y axis for every subplot
     all_depth_resistance_data = pd.concat(curves_data, axis=0, ignore_index=True)
@@ -202,3 +203,61 @@ def plot_feature_selection(feature_names:List[str], curves_data:List[pd.DataFram
     plt.tight_layout()
     plt.show()
     plt.close()
+
+def plot_feature_selection_seperately(feature_names: List[str], curves_data: List[pd.DataFrame], plot_idx: int):
+    # normalize the x and y axis for every plot
+    all_depth_resistance_data = pd.concat(curves_data, axis=0, ignore_index=True)
+    global_max_depth = all_depth_resistance_data['depth'].max()
+    global_max_resistance = all_depth_resistance_data['resistance'].max()
+
+    curve_data = curves_data[plot_idx]
+
+    for feature_name in feature_names:
+        fig, ax = plt.subplots(figsize=(4, 4))  # one figure per feature
+        ax.set_xlim([0, global_max_depth])
+        ax.set_ylim([0, global_max_resistance])
+        font_size = 10
+        ax.set_xlabel('Depth (m)', fontsize=font_size)
+        ax.set_ylabel('Resistance (N)', fontsize=font_size)
+        ax.set_title(feature_name.title(), fontsize=font_size)
+
+        # plot the base curve
+        ax.plot(curve_data['depth'], curve_data['resistance'])
+
+        # feature-specific handlers
+        fname = feature_name.lower()
+        if fname == "max_depth": 
+            handle_max_depth(curve_data, ax)
+        elif fname == "max_resistance":
+            handle_max_resistance(curve_data, ax)
+        elif fname == "num_peaks":
+            ax.set_title(f'{feature_name.title()} (Normalized)', fontsize=font_size)
+            handle_num_peaks(curve_data, ax)
+        elif fname == "largest_force_drop":
+            handle_largest_force_drop(curve_data, ax)
+        elif fname == "curve_shape":
+            handle_curve_shape(curve_data, ax)
+        elif fname == "largest_force_drop_dep":
+            handle_largest_force_drop_dep(curve_data, ax)
+        elif fname == "largest_force_drop_res":
+            handle_largest_force_drop_res(curve_data, ax)
+        elif fname == "first_quarter_slope":
+            handle_first_quarter_slope(curve_data, ax)
+        elif fname == "second_quarter_slope":
+            handle_second_quarter_slope(curve_data, ax)
+        elif fname == "third_quarter_slope":
+            handle_third_quarter_slope(curve_data, ax)
+        elif fname == "fourth_quarter_slope":
+            handle_fourth_quarter_slope(curve_data, ax)
+        elif fname == "quartile_1":
+            handle_quartile_1(curve_data, ax)
+        elif fname == "quartile_2":
+            handle_quartile_1(curve_data, ax)  # intentional?
+        elif fname == "quartile_3":
+            handle_quartile_3(curve_data, ax)
+        else:
+            print(f'Feature name {feature_name} is not an extracted feature')
+
+        plt.tight_layout()
+        plt.show()
+        plt.close(fig)
