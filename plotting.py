@@ -198,8 +198,8 @@ def plot_pseudo_labeling_steps(clustering_features:pd.DataFrame, pseudo_labels:L
     font_size = 10
     fig = go.Figure(data=[go.Scatter3d(
         x=specified_clusters_labeled_pca_data[:, 0],
-        y=specified_clusters_labeled_pca_data[:, 1],
-        z=specified_clusters_labeled_pca_data[:, 2],
+        z=specified_clusters_labeled_pca_data[:, 1],
+        y=specified_clusters_labeled_pca_data[:, 2],
         mode='text',
         text=specified_clusters_labeled_data_point_idxs,
         textfont=dict(size=font_size, color=specified_clusters_labeled_data_colors),
@@ -214,12 +214,12 @@ def plot_pseudo_labeling_steps(clustering_features:pd.DataFrame, pseudo_labels:L
                 title_font=dict(size=11),  # change font size here
                 range=[-4,4]
             ),
-            yaxis=dict(
+            zaxis=dict(
                 title=f'PC2 ({pca.explained_variance_ratio_[1]:.2f} var.)',
                 title_font=dict(size=11),
                 range=[-4,4]
             ),
-            zaxis=dict(
+            yaxis=dict(
                 title=f'PC3 ({pca.explained_variance_ratio_[2]:.2f} var.)',
                 title_font=dict(size=11),
                 range=[-4,4]
@@ -232,8 +232,8 @@ def plot_pseudo_labeling_steps(clustering_features:pd.DataFrame, pseudo_labels:L
             if abs(x) < 0.3: continue
             fig.add_trace(go.Scatter3d(
                 x=[0, x * 7],
-                y=[0, y * 7],
-                z=[0, z * 7],
+                z=[0, y * 7],
+                y=[0, z * 7],
                 mode='lines+text',
                 line=dict(width=4),
                 # text=[None, clustering_features_df.columns[i]],
@@ -251,8 +251,8 @@ def plot_pseudo_labeling_steps(clustering_features:pd.DataFrame, pseudo_labels:L
     specified_clusters_centroid_colors = pd.Series(centroid_colors)[specified_clusters_centroids_mask].tolist()
     fig.add_trace(go.Scatter3d(
         x=specified_clusters_centroid_transformations[:, 0],
-        y=specified_clusters_centroid_transformations[:, 1],
-        z=specified_clusters_centroid_transformations[:, 2],
+        z=specified_clusters_centroid_transformations[:, 1],
+        y=specified_clusters_centroid_transformations[:, 2],
         mode='markers',
         marker=dict(
             symbol='diamond',
@@ -270,8 +270,8 @@ def plot_pseudo_labeling_steps(clustering_features:pd.DataFrame, pseudo_labels:L
     pseudo_labeled_data_idxs = [str(i) for i in pseudo_labeled_data[f'{ylabel_name}_nums'].index]
     fig_grey = go.Figure(data=[go.Scatter3d(
         x=pseudo_num_features_pca[:, 0],
-        y=pseudo_num_features_pca[:, 1],
-        z=pseudo_num_features_pca[:, 2],
+        z=pseudo_num_features_pca[:, 1],
+        y=pseudo_num_features_pca[:, 2],
         mode='text',
         text=pseudo_labeled_data_idxs,
         textfont=dict(size=font_size, color="darkgrey"),
@@ -280,8 +280,8 @@ def plot_pseudo_labeling_steps(clustering_features:pd.DataFrame, pseudo_labels:L
     fig_grey.update_layout(fig.layout)  # copy axis ranges, titles, etc.
     fig_grey.add_trace(go.Scatter3d(
         x=specified_clusters_centroid_transformations[:, 0],
-        y=specified_clusters_centroid_transformations[:, 1],
-        z=specified_clusters_centroid_transformations[:, 2],
+        z=specified_clusters_centroid_transformations[:, 1],
+        y=specified_clusters_centroid_transformations[:, 2],
         mode='markers',
         marker=dict(
             symbol='diamond',
@@ -295,8 +295,8 @@ def plot_pseudo_labeling_steps(clustering_features:pd.DataFrame, pseudo_labels:L
     pseudo_labeled_data_idxs = [str(i) for i in pseudo_labeled_data[f'{ylabel_name}_nums'].index]
     fig_grey = go.Figure(data=[go.Scatter3d(
         x=pseudo_num_features_pca[:, 0],
-        y=pseudo_num_features_pca[:, 1],
-        z=pseudo_num_features_pca[:, 2],
+        z=pseudo_num_features_pca[:, 1],
+        y=pseudo_num_features_pca[:, 2],
         mode='text',
         text=pseudo_labeled_data_idxs,
         textfont=dict(size=8, color=pseudo_labeled_colors),
@@ -305,8 +305,8 @@ def plot_pseudo_labeling_steps(clustering_features:pd.DataFrame, pseudo_labels:L
     fig_grey.update_layout(fig.layout)  # copy axis ranges, titles, etc.
     fig_grey.add_trace(go.Scatter3d(
         x=specified_clusters_centroid_transformations[:, 0],
-        y=specified_clusters_centroid_transformations[:, 1],
-        z=specified_clusters_centroid_transformations[:, 2],
+        z=specified_clusters_centroid_transformations[:, 1],
+        y=specified_clusters_centroid_transformations[:, 2],
         mode='markers',
         marker=dict(
             symbol='diamond',
@@ -319,8 +319,8 @@ def plot_pseudo_labeling_steps(clustering_features:pd.DataFrame, pseudo_labels:L
             if abs(x) < 0.3: continue
             fig_grey.add_trace(go.Scatter3d(
                 x=[0, x * 7],
-                y=[0, y * 7],
-                z=[0, z * 7],
+                z=[0, y * 7],
+                y=[0, z * 7],
                 mode='lines+text',
                 line=dict(width=4),
                 # text=[None, clustering_features_df.columns[i]],
