@@ -219,7 +219,8 @@ def plot_feature_selection_seperately(feature_names: List[str], curves_data: Lis
         font_size = 10
         ax.set_xlabel('Depth (m)', fontsize=font_size)
         ax.set_ylabel('Resistance (N)', fontsize=font_size)
-        ax.set_title(feature_name.title(), fontsize=font_size)
+        # ax.set_title(feature_name.title(), fontsize=font_size)
+        ax.set_title(feature_name.title(), fontsize=20)  # bigger than axis labels
 
         # plot the base curve
         ax.plot(curve_data['depth'], curve_data['resistance'])
@@ -231,7 +232,7 @@ def plot_feature_selection_seperately(feature_names: List[str], curves_data: Lis
         elif fname == "max_resistance":
             handle_max_resistance(curve_data, ax)
         elif fname == "num_peaks":
-            ax.set_title(f'{feature_name.title()} (Normalized)', fontsize=font_size)
+            # ax.set_title(f'{feature_name.title()} (Normalized)', fontsize=font_size)
             handle_num_peaks(curve_data, ax)
         elif fname == "largest_force_drop":
             handle_largest_force_drop(curve_data, ax)

@@ -133,10 +133,11 @@ def plot_pca(clustering_features_df:pd.DataFrame, y_labels:List[int], num_pc:int
         ))
         # Feature loading vectors (e.g. PCA component directions)
         for i, (x, y, z) in enumerate(features_loadings):
+            if abs(x) < 0.3: continue
             fig.add_trace(go.Scatter3d(
-                x=[0, x * 5],
-                y=[0, y * 5],
-                z=[0, z * 5],
+                x=[0, x * 7],
+                y=[0, y * 7],
+                z=[0, z * 7],
                 mode='lines+text',
                 line=dict(width=4),
                 # text=[None, clustering_features_df.columns[i]],
@@ -180,6 +181,7 @@ def plot_pseudo_labeling_steps(clustering_features:pd.DataFrame, pseudo_labels:L
     centroids_nums = extract_numerical_features(centroids)
     centroid_transformations = pca.transform(centroids_nums.values)
     centroid_colors = [label_color_map[cluster_num] for cluster_num in centroid_ylabel_nums]
+    features_loadings = plot_pca_biplot(pca, clustering_num_features)
 
     # ------------------------------------------
 
@@ -225,6 +227,19 @@ def plot_pseudo_labeling_steps(clustering_features:pd.DataFrame, pseudo_labels:L
             aspectmode="cube" 
         )
     )
+    # Feature loading vectors (e.g. PCA component directions)
+    for i, (x, y, z) in enumerate(features_loadings):
+            if abs(x) < 0.3: continue
+            fig.add_trace(go.Scatter3d(
+                x=[0, x * 7],
+                y=[0, y * 7],
+                z=[0, z * 7],
+                mode='lines+text',
+                line=dict(width=4),
+                # text=[None, clustering_features_df.columns[i]],
+                textposition='top center',
+                name=clustering_num_features.columns[i]
+        ))
     fig.show()
 
     # ------------------------------------------
@@ -299,6 +314,19 @@ def plot_pseudo_labeling_steps(clustering_features:pd.DataFrame, pseudo_labels:L
             color=specified_clusters_centroid_colors
         )
     ))
+    # Feature loading vectors (e.g. PCA component directions)
+    for i, (x, y, z) in enumerate(features_loadings):
+            if abs(x) < 0.3: continue
+            fig_grey.add_trace(go.Scatter3d(
+                x=[0, x * 7],
+                y=[0, y * 7],
+                z=[0, z * 7],
+                mode='lines+text',
+                line=dict(width=4),
+                # text=[None, clustering_features_df.columns[i]],
+                textposition='top center',
+                name=clustering_num_features.columns[i]
+        ))
     fig_grey.show()
 
 
