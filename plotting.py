@@ -80,8 +80,8 @@ def plot_pca(clustering_features_df:pd.DataFrame, y_labels:List[int], num_pc:int
     pca = PCA(n_components=num_pc) # reduce data down to 2 dims
     pca.fit(clustering_num_features.values)
     X_pca = pca.transform(clustering_num_features.values)
-    centroid_ylabel_nums = centroids[f'{ylabel_name}_nums'].values
     if not centroids.empty:
+        centroid_ylabel_nums = centroids[f'{ylabel_name}_nums'].values
         centroids_nums = extract_numerical_features(centroids)
         centroid_transformations = pca.transform(centroids_nums.values)
         centroid_colors = [label_color_map[cluster_num] for cluster_num in centroid_ylabel_nums]
@@ -133,7 +133,6 @@ def plot_pca(clustering_features_df:pd.DataFrame, y_labels:List[int], num_pc:int
         ))
         # Feature loading vectors (e.g. PCA component directions)
         for i, (x, y, z) in enumerate(features_loadings):
-            if abs(x) < 0.3: continue
             fig.add_trace(go.Scatter3d(
                 x=[0, x * 7],
                 y=[0, y * 7],
