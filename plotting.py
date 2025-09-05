@@ -169,6 +169,31 @@ def plot_pca(clustering_features_df:pd.DataFrame, y_labels:List[int], num_pc:int
         )
         fig.show()
 
+# TODO: bandaid patch code - must fix!
+# color_map = ['red','green','','','','','','purple','orange','turquoise','','','lime']
+color_map = [
+    "deepskyblue",
+    "tomato",
+    "fuchsia",
+    "springgreen",
+    "orangered",
+    "mediumvioletred",
+    "aqua",
+    "violet",
+    "lawngreen",
+    "aqua",
+    "mediumturquoise",
+    "goldenrod",
+    "lightsalmon",
+    "dodgerblue",
+    "limegreen",
+    "mediumorchid",
+    "tomato",
+    "turquoise",
+    "lightseagreen",
+    "plum"
+]
+
 def plot_pseudo_labeling_steps(clustering_features:pd.DataFrame, pseudo_labels:List[int], num_pc:int, graph_title:str, ylabel_name:str, centroids:pd.DataFrame=pd.DataFrame(), specific_clusters=[]):
     clustering_features = clustering_features.copy()
     
@@ -235,7 +260,7 @@ def plot_pseudo_labeling_steps(clustering_features:pd.DataFrame, pseudo_labels:L
                 z=[0, y * 7],
                 y=[0, z * 7],
                 mode='lines+text',
-                line=dict(width=4),
+                line=dict(width=4, color=color_map[i]),
                 # text=[None, clustering_features_df.columns[i]],
                 textposition='top center',
                 name=clustering_num_features.columns[i]
@@ -289,6 +314,20 @@ def plot_pseudo_labeling_steps(clustering_features:pd.DataFrame, pseudo_labels:L
             color=specified_clusters_centroid_colors
         )
     ))
+    # Feature loading vectors (e.g. PCA component directions)
+    for i, (x, y, z) in enumerate(features_loadings):
+            if abs(x) < 0.3: continue
+            print(i)
+            fig_grey.add_trace(go.Scatter3d(
+                x=[0, x * 7],
+                z=[0, y * 7],
+                y=[0, z * 7],
+                mode='lines+text',
+                line=dict(width=4),
+                # text=[None, clustering_features_df.columns[i]],
+                textposition='top center',
+                name=clustering_num_features.columns[i]
+        ))
     fig_grey.show()
 
     pseudo_labeled_colors = [label_color_map[label] for label in pd.Series(pseudo_labels)[pseudo_labeled_data_mask]]
