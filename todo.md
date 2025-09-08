@@ -7,6 +7,7 @@ thoughts:
     k-nearest neighbors 
     fixing class imbalance
     
+help ian with his figure is highest priority - so that i get my name on the paper
 
 Long-term goals:
     metric for "best clustering"
@@ -28,6 +29,8 @@ Long-term goals:
             catching mistakes
 
 current goal:
+    matric for optimal features
+        try 
     metric for "best clustering"
         how many of the labeled data are cateogorized incorrectly
         variance within a label (some featurs may spread this out, some may group labels better)
