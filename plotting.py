@@ -19,7 +19,7 @@ num_features = ['overall_slope', 'max_depth', 'max_resistance', 'num_peaks',
 label_color_map = {0: 'red', 1: 'gold', 2: 'blue', 3: 'green', 4: 'purple', 5: 'pink',
         6: 'turquoise', 7: 'orange', 8: 'lime', 9: 'magenta', 10: 'brown',
         11: 'lime', 12: 'teal', 13: 'navy', 14: 'maroon', 15: 'olive',
-        16: 'coral', 17: 'grey', 18: 'salmon', 19: 'yellow'}
+        16: 'coral', 17: 'salmon', 18: 'yellow'}
 
 # size of figures produced
 size_fig = (8,6)
