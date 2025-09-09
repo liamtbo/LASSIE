@@ -16,7 +16,7 @@ num_features = ['overall_slope', 'max_depth', 'max_resistance', 'num_peaks',
                 "fourth_quarter_slope"]
 
 # unique coloring mappings for categories
-label_color_map = {0: 'red', 1: 'gold', 2: 'blue', 3: 'green', 4: 'purple', 5: 'pink',
+label_color_map = {-1:'black', 0: 'red', 1: 'gold', 2: 'blue', 3: 'green', 4: 'purple', 5: 'pink',
         6: 'turquoise', 7: 'orange', 8: 'lime', 9: 'magenta', 10: 'brown',
         11: 'lime', 12: 'teal', 13: 'navy', 14: 'maroon', 15: 'olive',
         16: 'coral', 17: 'salmon', 18: 'yellow'}
@@ -134,9 +134,9 @@ def plot_pca(clustering_features_df:pd.DataFrame, y_labels:List[int], num_pc:int
         # Feature loading vectors (e.g. PCA component directions)
         for i, (x, y, z) in enumerate(features_loadings):
             fig.add_trace(go.Scatter3d(
-                x=[0, x * 7],
-                y=[0, y * 7],
-                z=[0, z * 7],
+                x=[0, x * 3],
+                y=[0, y * 3],
+                z=[0, z * 3],
                 mode='lines+text',
                 line=dict(width=4),
                 # text=[None, clustering_features_df.columns[i]],
