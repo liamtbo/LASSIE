@@ -104,8 +104,8 @@ def plot_pca(clustering_features_df:pd.DataFrame, y_labels:List[int], num_pc:int
         # Main PCA scatter plot
         fig = go.Figure(data=[go.Scatter3d(
             x=X_pca[:, 0],
-            y=X_pca[:, 1],
-            z=X_pca[:, 2],
+            z=X_pca[:, 1],
+            y=X_pca[:, 2],
             mode='text',
             text=point_idxs,
             textfont=dict(size=6, color=point_colors),
@@ -114,8 +114,8 @@ def plot_pca(clustering_features_df:pd.DataFrame, y_labels:List[int], num_pc:int
         if not centroids.empty:
             fig.add_trace(go.Scatter3d(
                 x=centroid_transformations[:, 0],
-                y=centroid_transformations[:, 1],
-                z=centroid_transformations[:, 2],
+                z=centroid_transformations[:, 1],
+                y=centroid_transformations[:, 2],
                 mode='markers',
                 marker=dict(
                     symbol='diamond',
@@ -135,8 +135,8 @@ def plot_pca(clustering_features_df:pd.DataFrame, y_labels:List[int], num_pc:int
         for i, (x, y, z) in enumerate(features_loadings):
             fig.add_trace(go.Scatter3d(
                 x=[0, x * 3],
-                y=[0, y * 3],
-                z=[0, z * 3],
+                z=[0, y * 3],
+                y=[0, z * 3],
                 mode='lines+text',
                 line=dict(width=4),
                 # text=[None, clustering_features_df.columns[i]],
@@ -153,12 +153,12 @@ def plot_pca(clustering_features_df:pd.DataFrame, y_labels:List[int], num_pc:int
                     title_font=dict(size=11),  # change font size here
                     range=[-4,4]
                 ),
-                yaxis=dict(
+                zaxis=dict(
                     title=f'PC2 ({pca.explained_variance_ratio_[1]:.2f} var.)',
                     title_font=dict(size=11),
                     range=[-4,4]
                 ),
-                zaxis=dict(
+                yaxis=dict(
                     title=f'PC3 ({pca.explained_variance_ratio_[2]:.2f} var.)',
                     title_font=dict(size=11),
                     range=[-4,4]
