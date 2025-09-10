@@ -72,7 +72,10 @@ def extract_needed_cols(df:pd.DataFrame, remove_cols:List[str]):
     return df_copy
 
 # plot PCA 
-def plot_pca(clustering_features_df:pd.DataFrame, y_labels:List[int], num_pc:int, graph_title:str, ylabel_name:str, centroids:pd.DataFrame=pd.DataFrame(), only_plot_cluster_labels=[]):
+def plot_pca(clustering_features_df:pd.DataFrame, y_labels:List[int], 
+             num_pc:int, graph_title:str, ylabel_name:str, 
+             centroids:pd.DataFrame=pd.DataFrame(), 
+             only_plot_cluster_labels=[]):
     clustering_features_df = clustering_features_df.copy()
     clustering_num_features = extract_numerical_features(clustering_features_df)
     
@@ -367,27 +370,6 @@ def plot_pseudo_labeling_steps(clustering_features:pd.DataFrame, pseudo_labels:L
         ))
     fig_grey.show()
 
-
-
-# creates one plot where all curves, colored by their respective cluster, are plotted
-def plot_clusters_together(y_labels: List[int], after_mask_idxs: List[int], 
-                           curve_data, clustering_method: str = ""):
-    a = 0.3
-    combined_columns = pd.concat(curve_data, axis=0, ignore_index=True)
-    plt.figure(figsize=size_fig)
-    for i, y in enumerate(y_labels):
-        df = curve_data[after_mask_idxs[i]]
-        color = label_color_map.get(y, 'black')  # default to black if label not in map
-        plt.plot(df["depth"], df["resistance"], color=color, alpha=a)
-    plt.xlabel('Depth (m)')
-    plt.ylabel('Resistance (N)')
-    plt.title('Depth vs Resistance Curves')
-    plt.xlim([0, combined_columns["depth"].max()])
-    plt.ylim([0, combined_columns["resistance"].max()])
-    # plt.savefig(f"figures/{clustering_method.lower()}/cluster_curves", bbox_inches='tight')
-    plt.show()
-    plt.close() # clear figure 
-
 def find_subplot_dims(n):
     for i in range(int(math.sqrt(n)), 0, -1):
         if n % i == 0:
@@ -402,6 +384,7 @@ def map_cluster_to_idx(y_labels:List[int], curve_idxs:List[int]):
     for cluster, curve_idx in sorted_label_to_idx:
         cluster_to_idx[int(cluster)].append(curve_idx)
     return cluster_to_idx
+
 
 def plot_clusters_seperately(y_labels: pd.Series, 
                              curve_data: List[pd.DataFrame], ylabel_name:str, 
@@ -455,7 +438,7 @@ def plot_clusters_seperately(y_labels: pd.Series,
             ax.plot(curve['depth'], curve['resistance'], color=cluster_color, alpha=1, linewidth=2)
 
         for curve_i in cluster_correction_idxs:
-            label_num = pseudo_corrections.loc[curve_i][f'{ylabel_name}_nums']
+            label_num = pseudo_corrections.loc[curve_i]
             cluster_color = label_color_map.get(label_num, 'black')
             curve = curve_data[curve_i]
             ax.plot(curve['depth'], curve['resistance'], color=cluster_color, alpha=1, linewidth=2)
