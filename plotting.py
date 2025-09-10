@@ -385,12 +385,9 @@ def map_cluster_to_idx(y_labels:List[int], curve_idxs:List[int]):
         cluster_to_idx[int(cluster)].append(curve_idx)
     return cluster_to_idx
 
-
-def plot_clusters_seperately(y_labels: pd.Series, 
-                             curve_data: List[pd.DataFrame], ylabel_name:str, 
-                             clustering_method: str = "", cluster_category_names=[], bold_idxs=[], 
-                             pseudo_corrections:pd.DataFrame=pd.DataFrame()):
-    curve_idxs = y_labels.index.tolist()
+def plot_cluster_subolots(y_labels: pd.Series, curve_data: List[pd.DataFrame], 
+                             clustering_method: str = "", cluster_category_names=[], 
+                             bold_idxs=[], pseudo_corrections:pd.Series=pd.Series()):
     all_depth_resistance_data = pd.concat(curve_data, axis=0, ignore_index=True)
     gloabl_max_depth = all_depth_resistance_data['depth'].max()
     gloabl_max_resistance = all_depth_resistance_data['resistance'].max()
@@ -401,7 +398,8 @@ def plot_clusters_seperately(y_labels: pd.Series,
     if x < y: figsize=(14,6)
     else: figsize=(8,8)
 
-    cluster_to_idx = map_cluster_to_idx(y_labels, curve_idxs)
+    curve_idxs = y_labels.index.tolist()
+    cluster_to_idx = map_cluster_to_idx(y_labels, curve_idxs) # returns a dict of {label 1: [idxs], label 2: [idxs], ...}
 
     fig, axs = plt.subplots(x,y,figsize=figsize)
     fig.suptitle('Cluster Depth vs Resistance')
@@ -418,36 +416,22 @@ def plot_clusters_seperately(y_labels: pd.Series,
         else: ax.set_title(f'{cluster_color.title()} Cluster', fontsize=8)
 
         # for each curve in cluster_i
-        cluster_correction_idxs = []
-        cluster_bold_idxs = []
         for curve_i in cluster_to_idx[cluster_i]:
 
-            cluster_color = label_color_map.get(cluster_i, 'black')
-            curve = curve_data[curve_i]
-            
-            curve_needs_corrections = curve_i in pseudo_corrections.index
-            curve_needs_bold = curve_i in bold_idxs
-            if curve_needs_corrections or curve_needs_bold:
-                if curve_needs_corrections: cluster_correction_idxs.append(curve_i)
-                if curve_needs_bold: cluster_bold_idxs.append(curve_i)
-            else:
-                ax.plot(curve['depth'], curve['resistance'], color=cluster_color, alpha=opacity)
+            if not pseudo_corrections.empty: cluster_color = label_color_map.get(pseudo_corrections.loc[curve_i], 'black')
+            else: cluster_color = label_color_map.get(cluster_i, 'black')
 
-        for curve_i in cluster_bold_idxs:
             curve = curve_data[curve_i]
-            ax.plot(curve['depth'], curve['resistance'], color=cluster_color, alpha=1, linewidth=2)
 
-        for curve_i in cluster_correction_idxs:
-            label_num = pseudo_corrections.loc[curve_i]
-            cluster_color = label_color_map.get(label_num, 'black')
-            curve = curve_data[curve_i]
-            ax.plot(curve['depth'], curve['resistance'], color=cluster_color, alpha=1, linewidth=2)
-
+            if curve_i in bold_idxs: ax.plot(curve['depth'], curve['resistance'], color=cluster_color, alpha=1, linewidth=2)
+            else: ax.plot(curve['depth'], curve['resistance'], color=cluster_color, alpha=opacity, linewidth=1)
+                
         subplot_idx += 1
 
     plt.tight_layout()
     plt.show()
     plt.close()
+
 
 def pca_analysis(clustering_features_df):
     clustering_features_df = extract_numerical_features(clustering_features_df.copy())
