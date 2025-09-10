@@ -6,7 +6,7 @@ TODO
         Loc1A T1
         Loc1A T2
         Loc1A T1
-    timeline for cristina
+    timeline for cristina (done)
         send slack message
 
 
