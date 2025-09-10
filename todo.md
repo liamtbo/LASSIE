@@ -1,50 +1,21 @@
 
-Overarching 
 
-thoughts:
-    artificially icnrease labeled data set
-        for each label, find mean and variance
-    k-nearest neighbors 
-    fixing class imbalance
-    
-help ian with his figure is highest priority - so that i get my name on the paper
-
-Long-term goals:
-    metric for "best clustering"
-        variance
-        std
-    try diff clustering algos, mean, knn, radius-nn
-    update clustering feature list
-
-    use metric to test out best feature list
-        grid search on following:
-            num of features
-            num type of features
-            different algorithms
-            differ params for each algorithm
-    labeled data
-        iterative improvements of morphological labels
-        predictive capability on WS25
-            making more labeled data easier
-            catching mistakes
-
-current goal:
-    matric for optimal features
-        try 
-    metric for "best clustering"
-        how many of the labeled data are cateogorized incorrectly
-        variance within a label (some featurs may spread this out, some may group labels better)
-        using non-labeled clustering as ground truth somehow?
+TODO
+    slack message about force drop seperation
+    ians georeferencing
+        Loc1A T1
+        Loc1A T2
+        Loc1A T1
+    timeline for cristina
+        send slack message
 
 
+send in slack channel and link to it in email chai
+reach out about largest force drop
+include pseudo label result
+fisher test results
+maybe slide deck (not long) but if i do include tldr 
 
+asking them for largest force drop (not good metric but getting good results)
 
-
-
-
-
-
-
-
-
-
+timeline - slack over to cristina !!! for clustering result  
