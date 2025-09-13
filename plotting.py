@@ -13,7 +13,8 @@ num_features = ['overall_slope', 'max_depth', 'max_resistance', 'num_peaks',
                 'mean', 'skew', 'kurtosis', 'quartile_1', 'quartile_2', 'quartile_3', 
                 "largest_force_drop_dep", "largest_force_drop_res",
                 "first_quarter_slope", "second_quarter_slope", "third_quarter_slope", 
-                "fourth_quarter_slope"]
+                "fourth_quarter_slope", 'k_overall', 'k2cm', 'ksurface', 'rsquared',
+                'heteroginity', 'word2cm', 'Fpeak', 'dpeak']
 
 # unique coloring mappings for categories
 label_color_map = {-1:'black', 0: 'red', 1: 'gold', 2: 'blue', 3: 'green', 4: 'purple', 5: 'pink',
@@ -57,10 +58,9 @@ def plot_pca_biplot(pca, clustering_features_df):
 
 def extract_numerical_features(df:pd.DataFrame) -> pd.DataFrame:
     # should be updated if features are added !
-    numerical_features = num_features
     df_copy = df.copy()
     for col in df.columns:
-        if col not in numerical_features:
+        if col not in num_features:
             df_copy.drop(col, axis=1, inplace=True)
     return df_copy
 

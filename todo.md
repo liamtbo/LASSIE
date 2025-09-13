@@ -1,11 +1,6 @@
-
-
 TODO
-    slack message about force drop seperation
-    ians georeferencing
-        Loc1A T1
-        Loc1A T2
-        Loc1A T1
+    slack message about force drop seperation (done)
+    complete ians figures for him - details in chat (done)
     timeline for cristina (done)
         send slack message
 
@@ -18,4 +13,4 @@ maybe slide deck (not long) but if i do include tldr
 
 asking them for largest force drop (not good metric but getting good results)
 
-timeline - slack over to cristina !!! for clustering result  
+timeline - slack over to cristina !!! for clustering result  (done)
