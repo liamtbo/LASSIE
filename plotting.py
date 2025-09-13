@@ -7,14 +7,8 @@ from collections import Counter, defaultdict
 import re
 import plotly.graph_objects as go
 
-# not all of these are used
-num_features = ['overall_slope', 'max_depth', 'max_resistance', 'num_peaks', 
-                'largest_force_drop', 'curve_shape', 'largest_force_drop_res_level',
-                'mean', 'skew', 'kurtosis', 'quartile_1', 'quartile_2', 'quartile_3', 
-                "largest_force_drop_dep", "largest_force_drop_res",
-                "first_quarter_slope", "second_quarter_slope", "third_quarter_slope", 
-                "fourth_quarter_slope", 'k_overall', 'k2cm', 'ksurface', 'rsquared',
-                'heteroginity', 'word2cm', 'Fpeak', 'dpeak']
+num_features = pd.read_csv("numerical_feature_names.csv", header=None)[0].tolist()
+print(num_features)
 
 # unique coloring mappings for categories
 label_color_map = {-1:'black', 0: 'red', 1: 'gold', 2: 'blue', 3: 'green', 4: 'purple', 5: 'pink',
