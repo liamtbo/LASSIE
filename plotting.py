@@ -7,7 +7,7 @@ from collections import Counter, defaultdict
 import re
 import plotly.graph_objects as go
 
-num_features = pd.read_csv("numerical_feature_names.csv", header=None)[0].tolist()
+num_features = pd.read_csv("data/numerical_feature_names.csv", header=None)[0].tolist()
 print(num_features)
 
 # unique coloring mappings for categories
@@ -379,7 +379,7 @@ def map_cluster_to_idx(y_labels:List[int], curve_idxs:List[int]):
         cluster_to_idx[int(cluster)].append(curve_idx)
     return cluster_to_idx
 
-def plot_cluster_subolots(y_labels: pd.Series, curve_data: List[pd.DataFrame], 
+def plot_cluster_subplots(y_labels: pd.Series, curve_data: List[pd.DataFrame], 
                              clustering_method: str = "", cluster_category_names=[], 
                              bold_idxs=[], pseudo_corrections:pd.Series=pd.Series()):
     all_depth_resistance_data = pd.concat(curve_data, axis=0, ignore_index=True)
