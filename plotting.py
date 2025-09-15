@@ -8,7 +8,6 @@ import re
 import plotly.graph_objects as go
 
 num_features = pd.read_csv("data/numerical_feature_names.csv", header=None)[0].tolist()
-print(num_features)
 
 # unique coloring mappings for categories
 label_color_map = {-1:'black', 0: 'red', 1: 'gold', 2: 'blue', 3: 'green', 4: 'purple', 5: 'pink',
@@ -390,7 +389,7 @@ def plot_cluster_subplots(y_labels: pd.Series, curve_data: List[pd.DataFrame],
     labels_mapped_frequency = Counter(y_labels)
     x, y = find_subplot_dims(len(labels_mapped_frequency))
     if x < y: figsize=(14,6)
-    else: figsize=(8,8)
+    else: figsize=(5,5)
 
     curve_idxs = y_labels.index.tolist()
     cluster_to_idx = map_cluster_to_idx(y_labels, curve_idxs) # returns a dict of {label 1: [idxs], label 2: [idxs], ...}
