@@ -50,26 +50,36 @@ import plotting
 
 ylabel_name = 'marions_ylabels_esd_removed'
 
-def nearest_centroid_iterations(marions_labeled_data:pd.DataFrame, clustering_features:pd.DataFrame, prob_threshold:float) -> pd.Series:
-    labeled_data = marions_labeled_data.copy()
-    unlabeled_data = clustering_features.copy()
+def nearest_centroid_iterations(labeled_data:pd.DataFrame, all_data:pd.DataFrame, prob_threshold:float) -> pd.Series:
+    labeled_data = labeled_data.copy()
+    unlabeled_data = all_data.copy()
     high_prediction_idxs = [-1]
 
     while len(high_prediction_idxs):
+        print(f'--------new iteration-----------')
+        print(f'labeled_data: \n{labeled_data}')
+        print(f'unlabeled_data: \n{unlabeled_data}')
         nc = NearestCentroid()
         X = plotting.extract_numerical_features(labeled_data).values.tolist()
+        print(f'X: {X}')
         y = labeled_data[f'{ylabel_name}_nums'].values.tolist()
+        print(f'y: {y}')
         nc.fit(X,y)
-        unlabeled_data = clustering_features.drop(labeled_data.index, axis=0).values
-        np_predictions = nc.predict(unlabeled_data)
-        np_prediction_probs = np.round(nc.predict_proba(unlabeled_data), 2)
+        unlabeled_data = all_data.drop(labeled_data.index, axis=0)
+        print(f'unlabeled_data: \n{unlabeled_data}')
+        np_predictions = nc.predict(unlabeled_data.values)
+        print(f'predictions: \n{np_predictions}')
+        np_prediction_probs = np.round(nc.predict_proba(unlabeled_data.values), 2)
+        print(f'np_prediction_probs: \n{np_prediction_probs}')
 
-        high_prediction_idxs = np.where(np.any(np_prediction_probs > prob_threshold, axis=1))[0]
+        high_prediction_idxs = unlabeled_data.iloc[np.where(np.any(np_prediction_probs > prob_threshold, axis=1))[0]].index
+        print(f'high_prediction_idxs: \n{high_prediction_idxs}')
         high_prediction_unlabeled_data = unlabeled_data.loc[high_prediction_idxs, :]
+        print(f'high_prediction_unlabeled_data: \n{high_prediction_unlabeled_data}')
         high_prediction_unlabeled_data[f'{ylabel_name}_nums'] = np_predictions
+        print(f'high_prediction_unlabeled_data: \n{high_prediction_unlabeled_data}')
         
-        if len(high_prediction_idxs):
-            pd.concat([labeled_data, high_prediction_unlabeled_data], axis=0)
+        labeled_data = pd.concat([labeled_data, high_prediction_unlabeled_data], axis=0)
     
     pseudo_labeled_data = pd.concat([labeled_data, high_prediction_unlabeled_data], axis=0)
     return pseudo_labeled_data[f'{ylabel_name}_nums']
@@ -78,14 +88,15 @@ class Test_Find_Changed_Label_Curves(unittest.TestCase):
 
     def test1(self): 
         labeled_data = pd.DataFrame({
-            'f1': [0,1],
-            'marions_ylabels_esd_removed_nums': [0,1]
+            'max_depth': [0, 0.1, -0.1, 1, 0.9, 1.1],
+            'marions_ylabels_esd_removed_nums': [0,0,0,1,1,1]
         })
         all_data = pd.DataFrame({
-            'f1': [0,1,0,1],
-            'marions_ylabels_esd_removed_nums': [0,1,np.nan,np.nan]
+            'max_depth': [-0.1, 0, 0.1, 1, 0.9, 1.1, 0, 1],
         })
         predicted = nearest_centroid_iterations(labeled_data, all_data, 0.9)
+        print('algorithm finished')
+        print(predicted)
         self.assertEqual([0,1,0,1], predicted)
         
 
