@@ -18,12 +18,12 @@ TODO 9/15
                     get one pen from each extreme of dark blue section bc they're different intrusions
             use shipengs code to convert binary to csv or whatever for each force depth plot
 
+    cc lynn paul on cristina resaerch question (done)
     send out email chain about slack thing
     remove largest force drop and try correlate dthingd
-    slack cristina about learning based course and kinematics being moved
     clean up lassie code
     follow up with marion (new clustering result)
-    follow up with Doug (corr results with largest force drop num_peaks, rsquaredd, revised elbow plot i.e. get rid of flat partsSS)
+    follow up with Doug (corr results with largest force drop num_peaks, rsquaredd, revised elbow plot i.e. get rid of flat parts)
 
 
 
