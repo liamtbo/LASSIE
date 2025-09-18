@@ -3,10 +3,12 @@ TODO 9/15
         change text to times new roman (done)
         when i get the rest of images, line them up in a row by location, takingup two columns
         fill in text where he's written my name
+        change col names in data_preprocessing
 
         plot force depth
-            status: decode_cont.py decoded binary file to csv file, now stiffness_map should generate the plot, but no "...higher_level" named file created - waiting on jeongwoo
+            status: working on new branch
             
+            ian wants the figures more square.
             data is in ian's box
             2025-08-06_074335_Ws25_aug_06_loc_2a-1_t1_part2
                 contains force depth binary data & csv where each row is 
