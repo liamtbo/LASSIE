@@ -140,6 +140,7 @@ def plot_pca(clustering_features_df:pd.DataFrame, y_labels:List[int],
         centroid_mask = centroids[f'{ylabel_name}_nums'].isin(only_plot_cluster_labels)
         centroid_transformations = centroid_transformations[centroid_mask]
         centroid_colors = pd.Series(centroid_colors)[centroid_mask].tolist()
+    # if 
 
     if num_pc == 3:
         point_idxs = [str(i) for i in clustering_num_features.index]

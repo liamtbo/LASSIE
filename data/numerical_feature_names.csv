@@ -11,15 +11,7 @@ first_quarter_slope
 second_quarter_slope
 third_quarter_slope
 fourth_quarter_slope
-depth_mean
-depth_median
-depth_variance
-depth_quartile_1
-depth_quartile_2
-depth_quartile_3
-depth_kurtosis
 res_mean
-res_median
 res_variance
 res_quartile_1
 res_quartile_2
@@ -30,5 +22,3 @@ k_overall
 k2cm
 rsquared
 work2cm
-Fpeak
-dpeak
