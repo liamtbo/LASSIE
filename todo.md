@@ -4,6 +4,21 @@ TODO 9/23
     follow up on julie meeting
     write down todo list
 
+# All switched categories
+WS23_L2_T1_P_4.csv: LS -> LS
+WS23_L3_T1_P_9.csv: F -> F
+WS23_L2_T1_P_2.csv: LS -> LS
+WS23_L2_T1_P_8.csv: ES-DB -> ES-DB
+WS23_L3_T1_P_6.csv: ES-BW -> ES-BW
+WS23_L3_T1_P_0.csv: LS -> LS
+WS23_L3_T1_P_22.csv: ES -> ES
+WS23_L3_T1_P_8.csv: ES-BW -> ES-BW
+WS23_L3_T1_P_12.csv: F -> F
+WS23_L3_T1_P_7.csv: ES-B -> ES-B
+WS23_L3_T1_P_18.csv: ES-S-Plates -> ES-S-Plates
+WS23_L3_T1_P_19.csv: ES-S-Plates -> ES-S-Plates
+WS23_L3_T1_P_20.csv: LS/F -> LS/F
+
 
 TODO 9/15
     ian's figures

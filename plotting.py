@@ -102,7 +102,7 @@ def plot_cluster_subplots(y_labels: pd.Series, curve_data: List[pd.DataFrame],
 
             curve = curve_data[curve_i]
 
-            if curve_i in bold_idxs: ax.plot(curve['depth'], curve['resistance'], color=cluster_color, alpha=1, linewidth=2)
+            if curve_i in bold_idxs: ax.plot(curve['depth'], curve['resistance'], color=cluster_color, alpha=1, linewidth=3)
             else: ax.plot(curve['depth'], curve['resistance'], color=cluster_color, alpha=opacity, linewidth=1)
                 
         subplot_idx += 1
