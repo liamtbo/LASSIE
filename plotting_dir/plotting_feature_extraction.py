@@ -167,7 +167,7 @@ def plot_feature_selection(feature_names:List[str], curves_data:List[pd.DataFram
 
 
     # figsize=(round(plot_xdim*2), round(plot_ydim*5))
-    figsize=(round(plot_xdim*5), round(plot_ydim*1.5))
+    figsize=(round(plot_xdim*5), round(plot_ydim*3))
 
 
     # normalize the x and y axis for every subplot
@@ -181,44 +181,49 @@ def plot_feature_selection(feature_names:List[str], curves_data:List[pd.DataFram
         ax = flattened_axs[feature_i]
         ax.set_xlim([0,gloabl_depth_max])
         ax.set_ylim([0,gloabl_force_max])
-        font_size = 8
+        font_size = 15
         ax.set_xlabel('Depth (m)', fontsize=font_size)
         ax.set_ylabel('Resistance (N)', fontsize=font_size)
         ax.set_title(feature_name.title(), fontsize=font_size)
 
         curve_data = curves_data[plot_idx]
         ax.plot(curve_data['depth'], curve_data['resistance'])
-        if feature_name.lower() == "depth_max": 
+        fname = feature_name.lower()
+        if fname == "curve_overall_slope":
+            handle_curve_overall_slope(curve_data, ax)
+        elif fname == "depth_max": 
             handle_depth_max(curve_data, ax)
-        elif feature_name.lower() == "force_max":
+        elif fname == "force_max":
             handle_force_max(curve_data, ax)
-        elif feature_name.lower() == "num_peaks":
-            ax.set_title(f'{feature_name.title()} (Normalized)', fontsize=font_size)
+        elif fname == "num_peaks":
+            # ax.set_title(f'{feature_name.title()} (Normalized)', fontsize=font_size)
             handle_num_peaks(curve_data, ax)
-        elif feature_name.lower() == "largest_force_drop_size":
+        elif fname == "largest_force_drop_size":
             handle_largest_force_drop(curve_data, ax)
-        elif feature_name.lower() == "curve_shape":
+        elif fname == "curve_shape":
             handle_curve_shape(curve_data, ax)
-        elif feature_name.lower() == "largest_force_drop_dep":
+        elif fname == "largest_force_drop_dep":
             handle_largest_force_drop_dep(curve_data, ax)
-        elif feature_name.lower() == "largest_force_drop_res":
+        elif fname == "largest_force_drop_res":
             handle_largest_force_drop_res(curve_data, ax)
-        elif feature_name.lower() == "curve_first_quarter_slope":
+        elif fname == "curve_first_quarter_slope":
             handle_first_quarter_slope(curve_data, ax)
-        elif feature_name.lower() == "curve_second_quarter_slope":
+        elif fname == "curve_second_quarter_slope":
             handle_second_quarter_slope(curve_data, ax)
-        elif feature_name.lower() == "curve_third_quarter_slope":
+        elif fname == "curve_third_quarter_slope":
             handle_third_quarter_slope(curve_data, ax)
-        elif feature_name.lower() == "curve_fourth_quarter_slope":
+        elif fname == "curve_fourth_quarter_slope":
             handle_fourth_quarter_slope(curve_data, ax)
-        elif feature_name.lower() == "quartile_1":
+        elif fname == "force_quartile_1":
             handle_quartile_1(curve_data, ax)
-        elif feature_name.lower() == "quartile_2":
-            handle_quartile_1(curve_data, ax)
-        elif feature_name.lower() == "quartile_3":
+        elif fname == "force_quartile_2":
+            handle_quartile_2(curve_data, ax)  # intentional?
+        elif fname == "force_quartile_3":
             handle_quartile_3(curve_data, ax)
-        else:
-            print(f'feature name {feature_name} is not an extracted feature')
+        elif fname == "force_mean":
+            handle_force_mean(curve_data, ax)
+        elif fname == "curve_slope_2cm":
+            handle_curve_slope_2cm(curve_data, ax)
     plt.tight_layout()
     plt.show()
     plt.close()
