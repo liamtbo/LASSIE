@@ -146,7 +146,7 @@ def handle_force_mean(curve_data:pd.DataFrame, ax):
     dep = curve_data['depth']
     ax.plot([0,dep.max()], [mean, mean], color='red')
 
-def handle_curve_slope_2cm(curve_data:pd.DataFrame, ax):
+def handle_curve_2cm_slope(curve_data:pd.DataFrame, ax):
     res = curve_data['resistance']
     dep = curve_data['depth']
     if dep.max() < 0.02:
@@ -164,10 +164,11 @@ def plot_feature_selection(feature_names:List[str], curves_data:List[pd.DataFram
     # plot_xdim, plot_ydim = find_subplot_dims_orientation(len(feature_names))
     # swtich x and y for presentation plots bc slides are horizontal in size
     plot_ydim, plot_xdim = find_subplot_dims_orientation(len(feature_names))
-
+    plot_ydim, plot_xdim = (3,7)
 
     # figsize=(round(plot_xdim*2), round(plot_ydim*5))
-    figsize=(round(plot_xdim*5), round(plot_ydim*3))
+    # figsize=(round(plot_xdim*5), round(plot_ydim*3))
+    figsize=(8,20)
 
 
     # normalize the x and y axis for every subplot
@@ -177,11 +178,14 @@ def plot_feature_selection(feature_names:List[str], curves_data:List[pd.DataFram
     
     fig, axs = plt.subplots(plot_xdim, plot_ydim, figsize=figsize)
     flattened_axs = axs.flatten()
+    print(f'len feature names: {len(feature_names)}')
     for feature_i, feature_name in enumerate(feature_names): # loop over subplots
+        if feature_i >= plot_xdim * plot_xdim: break
+
         ax = flattened_axs[feature_i]
         ax.set_xlim([0,gloabl_depth_max])
         ax.set_ylim([0,gloabl_force_max])
-        font_size = 15
+        font_size = 8
         ax.set_xlabel('Depth (m)', fontsize=font_size)
         ax.set_ylabel('Resistance (N)', fontsize=font_size)
         ax.set_title(feature_name.title(), fontsize=font_size)
@@ -222,8 +226,8 @@ def plot_feature_selection(feature_names:List[str], curves_data:List[pd.DataFram
             handle_quartile_3(curve_data, ax)
         elif fname == "force_mean":
             handle_force_mean(curve_data, ax)
-        elif fname == "curve_slope_2cm":
-            handle_curve_slope_2cm(curve_data, ax)
+        elif fname == "curve_2cm_slope":
+            handle_curve_2cm_slope(curve_data, ax)
     plt.tight_layout()
     plt.show()
     plt.close()
@@ -285,7 +289,7 @@ def plot_feature_selection_seperately(feature_names: List[str], curves_data: Lis
         elif fname == "force_mean":
             handle_force_mean(curve_data, ax)
         elif fname == "curve_slope_2cm":
-            handle_curve_slope_2cm(curve_data, ax)
+            handle_curve_2cm_slope(curve_data, ax)
 
 
         else:
