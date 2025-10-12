@@ -16,6 +16,9 @@ label_color_map = {-1:'black', 0: 'red', 1: 'gold', 2: 'blue', 3: 'green', 4: 'p
         11: 'lime', 12: 'teal', 13: 'navy', 14: 'maroon', 15: 'olive',
         16: 'coral', 17: 'salmon', 18: 'yellow'}
 
+ylabel_to_cluster_num = {'Outlier':-1, 'ES-B':0, 'ES-BW':1, 'ES-S':2, 'ES-S-Plates':3, 'ES-D':4, 'LS':5, 'F':6, 'LS/F':7, 'ES-DB':8, 'ES': 9}
+cluster_num_to_ylabel = {v: k for k, v in ylabel_to_cluster_num.items()}
+
 # size of figures produced
 size_fig = (8,6)
 
@@ -123,6 +126,7 @@ def plot_pca(clustering_features_df:pd.DataFrame, y_labels:List[int],
     pca = PCA(n_components=num_pc) # reduce data down to 2 dims
     pca.fit(clustering_num_features.values)
     X_pca = pca.transform(clustering_num_features.values)
+
     if not centroids.empty:
         centroid_ylabel_nums = centroids[f'{ylabel_name}_nums'].values
         centroids_nums = extract_numerical_features(centroids)
@@ -153,18 +157,36 @@ def plot_pca(clustering_features_df:pd.DataFrame, y_labels:List[int],
             textfont=dict(size=6, color=point_colors),
             name='Data Points',
         )])
+        # if not centroids.empty:
+        #     fig.add_trace(go.Scatter3d(
+        #         x=centroid_transformations[:, 0],
+        #         z=centroid_transformations[:, 1],
+        #         y=centroid_transformations[:, 2],
+        #         mode='markers',
+        #         marker=dict(
+        #             symbol='diamond',
+        #             size=4,
+        #             color=centroid_colors
+        #         )
+        #     ))
         if not centroids.empty:
-            fig.add_trace(go.Scatter3d(
-                x=centroid_transformations[:, 0],
-                z=centroid_transformations[:, 1],
-                y=centroid_transformations[:, 2],
-                mode='markers',
-                marker=dict(
-                    symbol='diamond',
-                    size=4,
-                    color=centroid_colors
-                )
-            ))
+            # Plot each centroid as its own trace so colors show up in legend
+            for cluster_num, color, coords in zip(
+                centroid_ylabel_nums, centroid_colors, centroid_transformations
+            ):
+                fig.add_trace(go.Scatter3d(
+                    x=[coords[0]],
+                    y=[coords[2]],  # remember you swapped y/z in your plot
+                    z=[coords[1]],
+                    mode='markers',
+                    marker=dict(
+                        symbol='diamond',
+                        size=5,
+                        color=color
+                    ),
+                    name=f'Centroid {cluster_num_to_ylabel[cluster_num]}'  # shows up in legend
+                ))
+
         # Origin point at (0,0,0)
         fig.add_trace(go.Scatter3d(
             x=[0], y=[0], z=[0],
@@ -176,9 +198,9 @@ def plot_pca(clustering_features_df:pd.DataFrame, y_labels:List[int],
         # Feature loading vectors (e.g. PCA component directions)
         for i, (x, y, z) in enumerate(features_loadings):
             fig.add_trace(go.Scatter3d(
-                x=[0, x * 3],
-                z=[0, y * 3],
-                y=[0, z * 3],
+                x=[0, x * 5],
+                z=[0, y * 5],
+                y=[0, z * 5],
                 mode='lines+text',
                 line=dict(width=4),
                 # text=[None, clustering_features_df.columns[i]],
@@ -186,7 +208,7 @@ def plot_pca(clustering_features_df:pd.DataFrame, y_labels:List[int],
                 name=clustering_num_features.columns[i]
         ))
         # Update layout with axis labels and title
-        range_max = np.max(X_pca)
+        range_max = np.max(np.abs(X_pca))
         fig.update_layout(
             title='3D PCA Scatter Plot',
             autosize=True,
