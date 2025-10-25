@@ -154,7 +154,7 @@ def plot_pca(clustering_features_df:pd.DataFrame, y_labels:List[int],
             y=X_pca[:, 2],
             mode='text',
             text=point_idxs,
-            textfont=dict(size=6, color=point_colors),
+            textfont=dict(size=9, color=point_colors),
             name='Data Points',
         )])
         # if not centroids.empty:
