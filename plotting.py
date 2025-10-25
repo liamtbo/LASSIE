@@ -10,8 +10,14 @@ import numpy as np
 
 num_features = pd.read_csv("data/numerical_feature_names.csv", header=None)[0].tolist()
 
+# # unique coloring mappings for categories
+# label_color_map = {-1:'black', 0: 'red', 1: 'gold', 2: 'blue', 3: 'green', 4: 'purple', 5: 'pink',
+#         6: 'turquoise', 7: 'orange', 8: 'lime', 9: 'magenta', 10: 'brown',
+#         11: 'lime', 12: 'teal', 13: 'navy', 14: 'maroon', 15: 'olive',
+#         16: 'coral', 17: 'salmon', 18: 'yellow'}
+
 # unique coloring mappings for categories
-label_color_map = {-1:'black', 0: 'red', 1: 'gold', 2: 'blue', 3: 'green', 4: 'purple', 5: 'pink',
+label_color_map = {-1:'black', 0: 'blue', 1: 'green', 2: 'blue', 3: 'green', 4: 'purple', 5: 'pink',
         6: 'turquoise', 7: 'orange', 8: 'lime', 9: 'magenta', 10: 'brown',
         11: 'lime', 12: 'teal', 13: 'navy', 14: 'maroon', 15: 'olive',
         16: 'coral', 17: 'salmon', 18: 'yellow'}
