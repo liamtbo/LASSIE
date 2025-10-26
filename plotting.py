@@ -156,10 +156,13 @@ def plot_cluster_subplots(
             if not pseudo_corrections.empty: cluster_color = label_color_map.get(pseudo_corrections.loc[curve_i], 'black')
             else: 
                 overall_color = label_color_map.get(cluster_i, 'black')
-                curve_color = get_color_gradeient_color(prediction_proba[curve_i].max(), overall_color)
+                if curve_i in bold_idxs:
+                    curve_color = get_color_gradeient_color(1, overall_color)
+                else:
+                    curve_color = get_color_gradeient_color(prediction_proba[curve_i].max(), overall_color)
             curve = curve_data[curve_i]
 
-            if curve_i in bold_idxs: ax.plot(curve['depth'], curve['resistance'], color=curve_color, alpha=1, linewidth=3)
+            if curve_i in bold_idxs: ax.plot(curve['depth'], curve['resistance'], color=curve_color, alpha=1, linewidth=1)
             else: ax.plot(curve['depth'], curve['resistance'], color=curve_color, alpha=opacity, linewidth=1)
                 
         subplot_idx += 1
