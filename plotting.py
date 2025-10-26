@@ -22,6 +22,34 @@ label_color_map = {-1:'black', 0: 'blue', 1: 'green', 2: 'blue', 3: 'green', 4: 
         11: 'lime', 12: 'teal', 13: 'navy', 14: 'maroon', 15: 'olive',
         16: 'coral', 17: 'salmon', 18: 'yellow'}
 
+color_gradients = {
+    "blue":     
+        ["#00008B",  # DarkBlue
+        "#0000CD",  # MediumBlue
+        "#4169E1",  # RoyalBlue
+        "#1E90FF",  # DodgerBlue
+        "#00BFFF",  # DeepSkyBlue
+        "#87CEEB",  # SkyBlue
+        "#87CEFA",  # LightSkyBlue
+        "#ADD8E6",  # LightBlue
+        "#B0E0E6",  # PowderBlue
+        "#E0FFFF"   # LightCyan}
+        ],
+    "green":
+        [
+        "#00441B",  # very dark green
+        "#006D2C",
+        "#238B45",
+        "#41AB5D",
+        "#74C476",
+        "#A1D99B",
+        "#C7E9C0",
+        "#D9F0D3",
+        "#E5F5E0",
+        "#F7FCF5"   # very light green
+        ]
+}
+
 ylabel_to_cluster_num = {'Outlier':-1, 'ES-B':0, 'ES-BW':1, 'ES-S':2, 'ES-S-Plates':3, 'ES-D':4, 'LS':5, 'F':6, 'LS/F':7, 'ES-DB':8, 'ES': 9}
 cluster_num_to_ylabel = {v: k for k, v in ylabel_to_cluster_num.items()}
 
@@ -74,14 +102,33 @@ def extract_needed_cols(df:pd.DataFrame, remove_cols:List[str]):
             df_copy.drop(col, axis=1, inplace=True)
     return df_copy
 
-def plot_cluster_subplots(y_labels: pd.Series, curve_data: List[pd.DataFrame], 
-                             clustering_method: str = "", cluster_category_names=[], 
-                             bold_idxs=[], pseudo_corrections:pd.Series=pd.Series()):
+def get_color_gradeient_color(proba:float, main_color):
+    color_gradient = color_gradients[main_color]
+    if proba > 0.9: return color_gradients[main_color][0]
+    if proba > 0.8: return color_gradients[main_color][1]
+    if proba > 0.7: return color_gradients[main_color][2]
+    if proba > 0.6: return color_gradients[main_color][3]
+    if proba > 0.5: return color_gradients[main_color][4]
+    if proba > 0.4: return color_gradients[main_color][5]
+    if proba > 0.3: return color_gradients[main_color][6]
+    if proba > 0.2: return color_gradients[main_color][7]
+    if proba > 0.1: return color_gradients[main_color][8]
+    if proba >= 0: return color_gradients[main_color][9]
+
+def plot_cluster_subplots(
+                        y_labels: pd.Series, 
+                        curve_data: List[pd.DataFrame], 
+                        clustering_method: str = "", 
+                        cluster_category_names=[], 
+                        bold_idxs=[], 
+                        pseudo_corrections:pd.Series=pd.Series(),
+                        prediction_proba=[]):
+    
     all_depth_resistance_data = pd.concat(curve_data, axis=0, ignore_index=True)
     gloabl_max_depth = all_depth_resistance_data['depth'].max()
     gloabl_max_resistance = all_depth_resistance_data['resistance'].max()
 
-    opacity = 0.5
+    opacity = 1
     labels_mapped_frequency = Counter(y_labels)
     x, y = find_subplot_dims(len(labels_mapped_frequency))
     if x < y: figsize=(14,6)
@@ -107,12 +154,13 @@ def plot_cluster_subplots(y_labels: pd.Series, curve_data: List[pd.DataFrame],
         # for each curve in cluster_i
         for curve_i in cluster_to_idx[cluster_i]:
             if not pseudo_corrections.empty: cluster_color = label_color_map.get(pseudo_corrections.loc[curve_i], 'black')
-            else: cluster_color = label_color_map.get(cluster_i, 'black')
-
+            else: 
+                overall_color = label_color_map.get(cluster_i, 'black')
+                curve_color = get_color_gradeient_color(prediction_proba[curve_i].max(), overall_color)
             curve = curve_data[curve_i]
 
-            if curve_i in bold_idxs: ax.plot(curve['depth'], curve['resistance'], color=cluster_color, alpha=1, linewidth=3)
-            else: ax.plot(curve['depth'], curve['resistance'], color=cluster_color, alpha=opacity, linewidth=1)
+            if curve_i in bold_idxs: ax.plot(curve['depth'], curve['resistance'], color=curve_color, alpha=1, linewidth=3)
+            else: ax.plot(curve['depth'], curve['resistance'], color=curve_color, alpha=opacity, linewidth=1)
                 
         subplot_idx += 1
 
