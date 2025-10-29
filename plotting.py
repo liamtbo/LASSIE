@@ -162,8 +162,8 @@ def plot_cluster_subplots(
                     curve_color = get_color_gradeient_color(prediction_proba[curve_i].max(), overall_color)
             curve = curve_data[curve_i]
 
-            if curve_i in bold_idxs: ax.plot(curve['depth'], curve['resistance'], color=curve_color, alpha=1, linewidth=1)
-            else: ax.plot(curve['depth'], curve['resistance'], color=curve_color, alpha=opacity, linewidth=1)
+            if curve_i in bold_idxs: ax.plot(curve['depth'], curve['resistance'], color=curve_color, alpha=1, linewidth=2)
+            else: ax.plot(curve['depth'], curve['resistance'], color=curve_color, alpha=opacity, linewidth=2)
                 
         subplot_idx += 1
 
