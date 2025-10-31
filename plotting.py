@@ -153,6 +153,7 @@ def plot_cluster_subplots(
 
         # for each curve in cluster_i
         for curve_i in cluster_to_idx[cluster_i]:
+
             if not pseudo_corrections.empty: cluster_color = label_color_map.get(pseudo_corrections.loc[curve_i], 'black')
             else: 
                 overall_color = label_color_map.get(cluster_i, 'black')
