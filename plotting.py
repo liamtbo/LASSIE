@@ -17,7 +17,7 @@ num_features = pd.read_csv("data/numerical_feature_names.csv", header=None)[0].t
 #         16: 'coral', 17: 'salmon', 18: 'yellow'}
 
 # unique coloring mappings for categories
-label_color_map = {-1:'black', 0: 'blue', 1: 'green', 2: 'blue', 3: 'green', 4: 'purple', 5: 'pink',
+label_color_map = {-1:'black', 0: 'blue', 1: 'red', 2: 'blue', 3: 'green', 4: 'purple', 5: 'pink',
         6: 'turquoise', 7: 'orange', 8: 'lime', 9: 'magenta', 10: 'brown',
         11: 'lime', 12: 'teal', 13: 'navy', 14: 'maroon', 15: 'olive',
         16: 'coral', 17: 'salmon', 18: 'yellow'}
@@ -47,7 +47,20 @@ color_gradients = {
         "#D9F0D3",
         "#E5F5E0",
         "#F7FCF5"   # very light green
-        ]
+        ],
+    "red": [
+        "#67000D",  # very dark red
+        "#A50F15",
+        "#CB181D",
+        "#EF3B2C",
+        "#FB6A4A",
+        "#FC9272",
+        "#FCBBA1",
+        "#FEE0D2",
+        "#FEE5D9",
+        "#FFF5F0"   # very light red
+    ]
+
 }
 
 ylabel_to_cluster_num = {'Outlier':-1, 'ES-B':0, 'ES-BW':1, 'ES-S':2, 'ES-S-Plates':3, 'ES-D':4, 'LS':5, 'F':6, 'LS/F':7, 'ES-DB':8, 'ES': 9}
@@ -151,9 +164,9 @@ def plot_cluster_subplots(
         if cluster_category_names: ax.set_title(f'{cluster_category_names[cluster_i].title()} Cluster', fontsize=8)
         else: ax.set_title(f'{cluster_color.title()} Cluster', fontsize=8)
 
-        # for each curve in cluster_i
+        print(f'cluster_key: {cluster_i}')
         for curve_i in cluster_to_idx[cluster_i]:
-
+            print('\t', curve_i)
             if not pseudo_corrections.empty: cluster_color = label_color_map.get(pseudo_corrections.loc[curve_i], 'black')
             else: 
                 overall_color = label_color_map.get(cluster_i, 'black')
@@ -161,6 +174,7 @@ def plot_cluster_subplots(
                     curve_color = get_color_gradeient_color(1, overall_color)
                 else:
                     curve_color = get_color_gradeient_color(prediction_proba[curve_i].max(), overall_color)
+                curve_color = overall_color
             curve = curve_data[curve_i]
 
             if curve_i in bold_idxs: ax.plot(curve['depth'], curve['resistance'], color=curve_color, alpha=1, linewidth=2)
