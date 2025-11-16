@@ -1,15 +1,39 @@
 
-thinking:
-- overarching goal: use the robot dog to walk around and categorize the areas it traverses
-- thus these different categories should each have their own unique type of force-depth plots (one category might have a crust break, others wont, ect)
-- what if we cluster the curves into cateogies using unsupervised clustering techniques (clustering solely based on force-depth curve features -- not using any of Marion's labels and centroids)
-    - then for each of these unsupervised naturally forming category
-        - we look at photos corresponding to that cateogry and look for common visual features
-- This will tell us what surface visual features actually matter. 
+
+Problem
+As the ability to conduct robotic off-planet data collection grows, so does the need for label creation and an efficient data labeling processes. 
+
+Solution
+To create the classification bins, we propose a framework involving a planetary soil expert and unsupervised clustering algorithms. Once these categorical bins have been created, we utilize machine learning pseudo labeling techniques to accurately and efficiently predict labels for the unlabeled data.
+
+Impact
 
 
-- so why are we using random visual features of the ground to map surface features to subsurface types.
-- why are we even looking at the surface at all?
-r   - can computer vision tie into  this?
-    - the dogs penetration is
-- why not use the do unsupervised learning on the curves to create the differnet subsurface catgeries.
+
+
+
+
+
+
+
+Long-term goal: quadruped walks on a terrain and uses force-depth data to classify each step into categorical bins
+
+Current goal: create those classification bins for white sands data
+
+assumption: since we want to use quadruped steps to classify the terrain, we assume each class has a unique type of force depth plot
+    i.e. one class has crust breaks, a different class has very high force values, ect.
+
+how do we create these classifications?
+
+unsupervised clustering is good at classifying data such that each class has a unique force-depth plots, exactly what our objective is.
+
+If Marion's goal for her surface classification is that each class has a unique force-depth plot type, then I propose a solution to her visual feature choice problem.
+
+    proposed solution:
+        use unsupervised clustering models (Kmeans, dbscan, ect) to cluster the force depth curve data
+        for each cluster (classification):
+            collect all the photos corresponding to this cluster
+            look for common visual features within these photos
+            use these common visual features to represent that class
+
+Is our objective 

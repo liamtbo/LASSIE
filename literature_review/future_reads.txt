@@ -1,2 +1,0 @@
-https://www.mdpi.com/2076-3417/13/14/8286
-    Machine Learning Techniques for Soil Characterization Using Cone Penetration Test Data 
