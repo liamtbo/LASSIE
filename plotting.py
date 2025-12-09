@@ -185,7 +185,8 @@ def plot_cluster_subplots(
                         cluster_category_names=[], 
                         bold_idxs=[], 
                         pseudo_corrections:pd.Series=pd.Series(),
-                        prediction_proba=[]):
+                        prediction_proba=[],
+                        features_df=pd.DataFrame()):
     
     all_depth_resistance_data = pd.concat(curve_data, axis=0, ignore_index=True)
     gloabl_max_depth = all_depth_resistance_data['depth'].max()
@@ -237,7 +238,10 @@ def plot_cluster_subplots(
                 ax.plot(curve['depth'], curve['resistance'], color=curve_color, alpha=1, linewidth=2)
             else: 
                 ax.plot(curve['depth'], curve['resistance'], color=curve_color, alpha=opacity, linewidth=2)
-            ax.text(curve['depth'].iloc[-1], curve['resistance'].iloc[-1], curve_i, va='center')
+
+            if not features_df.empty:
+                locpoint_i = features_df['locpoint'].loc[curve_i]
+                ax.text(curve['depth'].iloc[-1], curve['resistance'].iloc[-1], locpoint_i, va='center', size=6)
                 
         subplot_idx += 1
 
@@ -278,14 +282,16 @@ def plot_pca(clustering_features_df:pd.DataFrame, y_labels:List[int],
 
     if num_pc == 3:
         point_idxs = [str(i) for i in clustering_num_features.index]
+        locpoints = [str(i) for i in clustering_features_df['locpoint']]
         # Main PCA scatter plot
         fig = go.Figure(data=[go.Scatter3d(
             x=X_pca[:, 0],
             z=X_pca[:, 1],
             y=X_pca[:, 2],
             mode='text',
-            text=point_idxs,
-            textfont=dict(size=12, color=point_colors),
+            # text=point_idxs,
+            text=locpoints,
+            textfont=dict(size=9, color=point_colors),
             name='Data Points',
         )])
         # if not centroids.empty:
