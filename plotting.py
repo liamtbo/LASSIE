@@ -11,7 +11,7 @@ import numpy as np
 num_features = pd.read_csv("data/numerical_feature_names.csv", header=None)[0].tolist()
 
 # # unique coloring mappings for categories
-label_color_map = {-1:'black', 0: 'red', 1: 'gold', 2: 'blue', 3: 'green', 4: 'purple', 5: 'pink',
+label_color_map = {-1:'black', 0: 'red', 1: 'blue', 2: 'blue', 3: 'green', 4: 'purple', 5: 'pink',
         6: 'turquoise', 7: 'orange', 8: 'lime', 9: 'magenta', 10: 'brown',
         11: 'lime', 12: 'teal', 13: 'navy', 14: 'maroon', 15: 'olive',
         16: 'coral', 17: 'salmon', 18: 'yellow'}
@@ -130,7 +130,7 @@ def get_color_gradeient_color(proba:float, main_color):
 
 def plot_unsupervised_cluster_subplots(
                         y_labels: pd.Series, 
-                        curve_data: List[pd.DataFrame], 
+                        curve_data: List[pd.DataFrame],
                         clustering_method: str = "", 
                         cluster_category_names=[], 
                         bold_idxs=[], 
@@ -151,7 +151,7 @@ def plot_unsupervised_cluster_subplots(
     cluster_to_idx = map_cluster_to_idx(y_labels, curve_idxs) # returns a dict of {label 1: [idxs], label 2: [idxs], ...}
 
     fig, axs = plt.subplots(x,y,figsize=figsize)
-    fig.suptitle('Cluster Depth vs Resistance')
+    fig.suptitle(title)
     # # for each cluster_i
     subplot_idx = 0
     axs_flattened = axs.flatten()
@@ -176,63 +176,74 @@ def plot_unsupervised_cluster_subplots(
     plt.close()
 
 
-# def plot_cluster_subplots(
-                        # y_labels: pd.Series, 
-                        # curve_data: List[pd.DataFrame], 
-                        # clustering_method: str = "", 
-                        # cluster_category_names=[], 
-                        # bold_idxs=[], 
-                        # pseudo_corrections:pd.Series=pd.Series(),
-                        # prediction_proba=[]):
-    # 
-    # all_depth_resistance_data = pd.concat(curve_data, axis=0, ignore_index=True)
-    # gloabl_max_depth = all_depth_resistance_data['depth'].max()
-    # gloabl_max_resistance = all_depth_resistance_data['resistance'].max()
-# 
-    # opacity = 1
-    # labels_mapped_frequency = Counter(y_labels)
-    # x, y = find_subplot_dims(len(labels_mapped_frequency))
-    # if x < y: figsize=(14,6)
-    # else: figsize=(8,8)
-# 
-    # curve_idxs = y_labels.index.tolist()
-    # cluster_to_idx = map_cluster_to_idx(y_labels, curve_idxs) # returns a dict of {label 1: [idxs], label 2: [idxs], ...}
-# 
-    # fig, axs = plt.subplots(x,y,figsize=figsize)
-    # fig.suptitle('Cluster Depth vs Resistance')
-    # for each cluster_i
-    # subplot_idx = 0
-    # axs_flattened = axs.flatten()
-    # for cluster_i in cluster_to_idx.keys():
-        # ax = axs_flattened[subplot_idx]
-        # ax.set_xlim([0,gloabl_max_depth])
-        # ax.set_ylim([0,gloabl_max_resistance])
-        # ax.set_xlabel('Depth (m)', fontsize=8)
-        # ax.set_ylabel('Resistance (N)', fontsize=8)
-        # if cluster_category_names: ax.set_title(f'{cluster_category_names[cluster_i].title()} Cluster', fontsize=8)
-        # else: ax.set_title(f'{cluster_color.title()} Cluster', fontsize=8)
-# 
+def plot_cluster_subplots(
+                        y_labels: pd.Series, 
+                        curve_data: List[pd.DataFrame],
+                        filenames, 
+                        title='', 
+                        clustering_method: str = "", 
+                        cluster_category_names=[], 
+                        bold_idxs=[], 
+                        pseudo_corrections:pd.Series=pd.Series(),
+                        prediction_proba=[]):
+    
+    all_depth_resistance_data = pd.concat(curve_data, axis=0, ignore_index=True)
+    gloabl_max_depth = all_depth_resistance_data['depth'].max()
+    gloabl_max_resistance = all_depth_resistance_data['resistance'].max()
+
+    opacity = 1
+    labels_mapped_frequency = Counter(y_labels)
+    x, y = find_subplot_dims(len(labels_mapped_frequency))
+    if x < y: figsize=(14,6)
+    else: figsize=(8,8)
+    x=1
+    y=2
+    figsize=(8,5)
+
+
+    curve_idxs = y_labels.index.tolist()
+    cluster_to_idx = map_cluster_to_idx(y_labels, curve_idxs) # returns a dict of {label 1: [idxs], label 2: [idxs], ...}
+
+    fig, axs = plt.subplots(x,y,figsize=figsize)
+    fig.suptitle(title)
+
+    subplot_idx = 0
+    axs_flattened = axs.flatten()
+    for cluster_i in cluster_to_idx.keys():
+        ax = axs_flattened[subplot_idx]
+        ax.set_xlim([0,gloabl_max_depth])
+        ax.set_ylim([0,gloabl_max_resistance])
+        ax.set_xlabel('Depth (m)', fontsize=8)
+        ax.set_ylabel('Resistance (N)', fontsize=8)
+        if cluster_category_names: ax.set_title(f'{cluster_category_names[cluster_i].title()} Cluster', fontsize=8)
+        else: ax.set_title(f'{cluster_color.title()} Cluster', fontsize=8)
+
         # print(f'cluster_key: {cluster_i}')
-        # for curve_i in cluster_to_idx[cluster_i]:
-            # print('\t', curve_i)
-            # if not pseudo_corrections.empty: cluster_color = label_color_map.get(pseudo_corrections.loc[curve_i], 'black')
-            # else: 
-                # overall_color = label_color_map.get(cluster_i, 'black')
-                # if curve_i in bold_idxs:
-                    # curve_color = get_color_gradeient_color(1, overall_color)
-                # else:
-                    # curve_color = get_color_gradeient_color(prediction_proba[curve_i].max(), overall_color)
-                # curve_color = overall_color
-            # curve = curve_data[curve_i]
-# 
-            # if curve_i in bold_idxs: ax.plot(curve['depth'], curve['resistance'], color=curve_color, alpha=1, linewidth=2)
-            # else: ax.plot(curve['depth'], curve['resistance'], color=curve_color, alpha=opacity, linewidth=2)
-                # 
-        # subplot_idx += 1
-# 
-    # plt.tight_layout()
-    # plt.show()
-    # plt.close()
+        for curve_i in cluster_to_idx[cluster_i]:
+            # print('\t', curve_i, ':', filenames[curve_i])
+            if not pseudo_corrections.empty: cluster_color = label_color_map.get(pseudo_corrections.loc[curve_i], 'black')
+            else: 
+                overall_color = label_color_map.get(cluster_i, 'black')
+                if curve_i in bold_idxs:
+                    if len(prediction_proba):
+                        curve_color = get_color_gradeient_color(1, overall_color)
+                else:
+                    if len(prediction_proba):
+                        curve_color = get_color_gradeient_color(prediction_proba[curve_i].max(), overall_color)
+                curve_color = overall_color
+            curve = curve_data[curve_i]
+
+            if curve_i in bold_idxs: 
+                ax.plot(curve['depth'], curve['resistance'], color=curve_color, alpha=1, linewidth=2)
+            else: 
+                ax.plot(curve['depth'], curve['resistance'], color=curve_color, alpha=opacity, linewidth=2)
+            ax.text(curve['depth'].iloc[-1], curve['resistance'].iloc[-1], curve_i, va='center')
+                
+        subplot_idx += 1
+
+    plt.tight_layout()
+    plt.show()
+    plt.close()
 
 # plot PCA 
 def plot_pca(clustering_features_df:pd.DataFrame, y_labels:List[int], 
@@ -274,7 +285,7 @@ def plot_pca(clustering_features_df:pd.DataFrame, y_labels:List[int],
             y=X_pca[:, 2],
             mode='text',
             text=point_idxs,
-            textfont=dict(size=9, color=point_colors),
+            textfont=dict(size=12, color=point_colors),
             name='Data Points',
         )])
         # if not centroids.empty:
