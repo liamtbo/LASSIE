@@ -197,8 +197,8 @@ def plot_cluster_subplots(
     x, y = find_subplot_dims(len(labels_mapped_frequency))
     if x < y: figsize=(14,6)
     else: figsize=(8,8)
-    x=2
-    y=4
+    x=1
+    y=1
     figsize=(8,5)
 
     curve_idxs = y_labels.index.tolist()

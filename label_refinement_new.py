@@ -51,6 +51,13 @@ def correct_pseudo_ylabels_to_actual(pseudo_labels:pd.Series, actual_labels:pd.S
 optimal_visual_features = ['popcorn', 'clump', 'loose_sand']
 groups = data.groupby(optimal_visual_features, dropna=False)
 for i, (name, df) in enumerate(groups):
+    plotting.plot_cluster_subplots(
+        list(data['group_ylabel']),
+        curve_data,
+        title=name,
+        filenames=filename_list,
+        cluster_category_names=[str(name)]
+    )
     data.loc[df.index, 'group_ylabel'] = i 
 
 plotting.plot_cluster_subplots(
