@@ -60,3 +60,6 @@ plotting.plot_cluster_subplots(
     cluster_category_names=[str(k) for k in groups.groups.keys()]
 )
 
+features = plotting.extract_numerical_features(data)
+
+plotting.plot_pca(features, data['group_ylabel'], 3, "",'x')
