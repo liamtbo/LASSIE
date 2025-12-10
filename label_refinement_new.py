@@ -23,6 +23,7 @@ filename_to_depth_resist = dict(zip(filename_list, curve_data))
 ylabel_name = 'marions_ylabels'
 data = pd.read_csv("data/optimal_features.csv")
 
+# print(data[['filenames', 'largest_force_drop_size', 'force_mean', 'curve_first_quarter_slope', 'largest_force_drop_res', 'num_peaks']])
 
 data['popcorn'] = data['popcorn'].astype('boolean')
 data['clump'] = data['clump'].astype('boolean')
@@ -60,6 +61,7 @@ plotting.plot_cluster_subplots(
     cluster_category_names=[str(k) for k in groups.groups.keys()]
 )
 
-features = plotting.extract_numerical_features(data)
-
-plotting.plot_pca(features, data['group_ylabel'], 3, "",'x')
+# features = plotting.extract_numerical_features(data)
+# print(features.columns)
+# print(features)
+plotting.plot_pca(data, data['group_ylabel'], 3, "",'')
