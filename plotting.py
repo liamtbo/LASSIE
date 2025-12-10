@@ -197,10 +197,9 @@ def plot_cluster_subplots(
     x, y = find_subplot_dims(len(labels_mapped_frequency))
     if x < y: figsize=(14,6)
     else: figsize=(8,8)
-    x=1
-    y=2
+    x=2
+    y=4
     figsize=(8,5)
-
 
     curve_idxs = y_labels.index.tolist()
     cluster_to_idx = map_cluster_to_idx(y_labels, curve_idxs) # returns a dict of {label 1: [idxs], label 2: [idxs], ...}
@@ -216,8 +215,8 @@ def plot_cluster_subplots(
         ax.set_ylim([0,gloabl_max_resistance])
         ax.set_xlabel('Depth (m)', fontsize=8)
         ax.set_ylabel('Resistance (N)', fontsize=8)
-        if cluster_category_names: ax.set_title(f'{cluster_category_names[cluster_i].title()} Cluster', fontsize=8)
-        else: ax.set_title(f'{cluster_color.title()} Cluster', fontsize=8)
+        if cluster_category_names: ax.set_title(f'{cluster_category_names[cluster_i].title()}', fontsize=8)
+        else: ax.set_title(f'{cluster_color.title()}', fontsize=8)
 
         # print(f'cluster_key: {cluster_i}')
         for curve_i in cluster_to_idx[cluster_i]:
